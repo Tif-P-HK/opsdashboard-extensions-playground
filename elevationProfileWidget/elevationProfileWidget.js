@@ -386,6 +386,13 @@ define([
         .style("display", "none")
         .attr("class", "focus");
 
+      focus.append("image")
+        .attr("xlink:href", "./paper_mario.ico")
+        .attr("width", 38)
+        .attr("height", 38)
+        .attr("dx", 5)
+        .attr("dy", 0);
+
       focus.append("circle")
         .attr("r", 4.5);
 

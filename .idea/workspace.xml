@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="312ec075-087f-4367-80dc-af3c5f2776db" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidget.js" afterPath="$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidget.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/elevationProfileWidget/style.css" afterPath="$PROJECT_DIR$/elevationProfileWidget/style.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="extensions.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -38,8 +36,8 @@
       <file leaf-file-name="elevationProfileWidget.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidget.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4351145">
-              <caret line="368" column="0" selection-start-line="368" selection-start-column="0" selection-end-line="368" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.44711015">
+              <caret line="377" column="35" selection-start-line="377" selection-start-column="35" selection-end-line="377" selection-end-column="35" />
               <folding>
                 <element signature="e#2736#4087#0" expanded="false" />
                 <element signature="e#4278#4958#0" expanded="false" />
@@ -47,14 +45,24 @@
                 <element signature="e#5210#6507#0" expanded="false" />
                 <element signature="e#6628#6731#0" expanded="false" />
                 <element signature="e#6781#9543#0" expanded="false" />
-                <element signature="e#16871#16968#0" expanded="false" />
-                <element signature="e#17004#17513#0" expanded="false" />
-                <element signature="e#17548#17908#0" expanded="false" />
-                <element signature="e#17942#18243#0" expanded="false" />
-                <element signature="e#18277#18540#0" expanded="false" />
-                <element signature="e#18578#18844#0" expanded="false" />
-                <element signature="e#18877#19141#0" expanded="false" />
+                <element signature="e#17051#17148#0" expanded="false" />
+                <element signature="e#17184#17693#0" expanded="false" />
+                <element signature="e#17728#18088#0" expanded="false" />
+                <element signature="e#18122#18423#0" expanded="false" />
+                <element signature="e#18457#18720#0" expanded="false" />
+                <element signature="e#18758#19024#0" expanded="false" />
+                <element signature="e#19057#19321#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="elevationProfileWidget.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidget.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-7.7">
+              <caret line="11" column="10" selection-start-line="11" selection-start-column="10" selection-end-line="11" selection-end-column="10" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -67,8 +75,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidget.js" />
         <option value="$PROJECT_DIR$/elevationProfileWidget/style.css" />
+        <option value="$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidget.js" />
       </list>
     </option>
   </component>
@@ -298,10 +306,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidget.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-7.7">
+          <caret line="11" column="10" selection-start-line="11" selection-start-column="10" selection-end-line="11" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidget.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4351145">
-          <caret line="368" column="0" selection-start-line="368" selection-start-column="0" selection-end-line="368" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.44711015">
+          <caret line="377" column="35" selection-start-line="377" selection-start-column="35" selection-end-line="377" selection-end-column="35" />
           <folding>
             <element signature="e#2736#4087#0" expanded="false" />
             <element signature="e#4278#4958#0" expanded="false" />
@@ -309,13 +325,13 @@
             <element signature="e#5210#6507#0" expanded="false" />
             <element signature="e#6628#6731#0" expanded="false" />
             <element signature="e#6781#9543#0" expanded="false" />
-            <element signature="e#16871#16968#0" expanded="false" />
-            <element signature="e#17004#17513#0" expanded="false" />
-            <element signature="e#17548#17908#0" expanded="false" />
-            <element signature="e#17942#18243#0" expanded="false" />
-            <element signature="e#18277#18540#0" expanded="false" />
-            <element signature="e#18578#18844#0" expanded="false" />
-            <element signature="e#18877#19141#0" expanded="false" />
+            <element signature="e#17051#17148#0" expanded="false" />
+            <element signature="e#17184#17693#0" expanded="false" />
+            <element signature="e#17728#18088#0" expanded="false" />
+            <element signature="e#18122#18423#0" expanded="false" />
+            <element signature="e#18457#18720#0" expanded="false" />
+            <element signature="e#18758#19024#0" expanded="false" />
+            <element signature="e#19057#19321#0" expanded="false" />
           </folding>
         </state>
       </provider>
