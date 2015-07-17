@@ -1,0 +1,15 @@
+{
+  "type": "Widget",
+  "title": "Get Elevation Profile",
+  "description": "Get elevation profile",
+  "usePortalServices": true,
+  "useDataFromView": true,
+  "thumbnailPath": "thumbnail.png",
+  "configuration": {
+    "requireMapWidget": true
+  },
+  "runtime": {
+    "path": "elevationProfileWidget.html"
+  },
+  "credits": "By Esri (http://www.esri.com)"
+}
