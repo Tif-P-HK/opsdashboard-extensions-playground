@@ -50,8 +50,18 @@ html, body {
   vector-effect: non-scaling-stroke;
 }
 
-.axis text{
-  font-family: Arial !important;;
+.title{
+  font-family: Arial;
+  font-size: 16px;
+}
+
+.axis {
+  font-family: Arial !important;
+  font-size: 12px;
+}
+
+.axis text, {
+  font-family: Arial !important;
   font-size: 12px;
 }
 

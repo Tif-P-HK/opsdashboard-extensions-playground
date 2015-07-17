@@ -67,7 +67,7 @@ define([
       // Create a location graphic to indicate the map location when user hovers on the profile graph
       var chartLocationSymbol = new SimpleMarkerSymbol(
         SimpleMarkerSymbol.STYLE_X,
-        13,
+        15,
         new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color("#000000"), 1),
         new Color("#000000"));
       this.chartLocationGraphic = new Graphic(null, chartLocationSymbol);
@@ -76,9 +76,8 @@ define([
       window.onresize = lang.hitch(this, function(){
         this.height = window.innerHeight * 0.85;
         this.width = window.innerWidth;
-        //TODO: remove this
-        console.log("h: " + this.height + ", w: " + this.width);
 
+        // recalculate the x and y ranges using the new dimensions
         this.calculateRanges();
       });
     },
@@ -195,10 +194,7 @@ define([
       this.showStartupPage();
     },
 
-    //https://www.sitepen.com/blog/2015/03/06/understanding-deferreds-and-promises-in-dojo/
-    // Test view with sp. ref 4269 (production site)
     generateProfileGraph: function (inputLine) {
-
       // Calculate the elevation profile for the input line
 
       var deferred = new Deferred();
@@ -277,8 +273,6 @@ define([
       var elevations = elevationInfos.elevations;
       var locations = elevationInfos.locations;
 
-      //TODO: replace ' by "
-
       // Use a d3 line chart to show the elevation data
 
       // set the preserveAspectRatio to none so that the SVG will scale
@@ -307,9 +301,9 @@ define([
         .tickSize(1)
         .tickFormat(d3.format(",.0f"));
 
-      this.profileGraph.append('g')
-        .attr('class', 'x axis')
-        .attr('transform', 'translate(0, ' + (this.height - this.margins.bottom) + ')')
+      this.profileGraph.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0, " + (this.height - this.margins.bottom) + ")")
         .call(xAxis);
 
       // Render the y-axis
@@ -319,27 +313,41 @@ define([
         .orient("left")
         .tickFormat(d3.format(",.0f"));
 
-      this.profileGraph.append('g')
-        .attr('class', 'y axis')
-        .attr('transform', 'translate(' + (this.margins.left) + ', 0)')
+      this.profileGraph.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + (this.margins.left) + ", 0)")
         .call(yAxis);
 
       // Define the line function
       var lineFunction = d3.svg.line()
         .x(lang.hitch(this, function(d){return this.xRange(d.m);}))
         .y(lang.hitch(this, function(d){return this.yRange(d.z);}))
-        .interpolate('linear');
+        .interpolate("linear");
 
       // Render the line
-      this.profileGraph.append('path')
-        .attr('class', 'chart path')
-        .attr('d', lineFunction(elevations));
+      this.profileGraph.append("path")
+        .attr("class", "chart path")
+        .attr("d", lineFunction(elevations));
+
+      // Add title to the x axis
+      this.profileGraph.append("text")
+        .attr("class", "title")
+        .attr("text-anchor", "middle")
+        .attr("x", this.width/2)
+        .attr("y", this.height - 10)
+        .text("Distance in " + this.unit);
+
+      // Add title to the y axis
+      this.profileGraph.append("text")
+        .attr("class", "title")
+        .attr("text-anchor", "middle")
+        .attr("transform", "translate("+ (this.margins.top/2) +","+(this.height/2)+ "rotate(-90)")
+        .text("Elevation in " + this.unit);
 
       // TODO: Add titles to the axes
       // http://www.d3noob.org/2014/07/my-favourite-tooltip-method-for-line.html
 
-      // When hovering on the line, show the z value based on the closest x-value
-      // http://bl.ocks.org/mbostock/3902569
+      // When hovering on the graph, show the z value based on the closest x-value
       var focus = this.profileGraph.append("g")
         .attr("class", "focus")
         .style("display", "none");
