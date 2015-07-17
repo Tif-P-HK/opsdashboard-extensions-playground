@@ -386,6 +386,10 @@ define([
         .style("display", "none")
         .attr("class", "focus");
 
+      /*
+       http://findicons.com/icon/423544/retro_mario
+       http://findicons.com/icon/423523/paper_mario?id=423632
+      */
       focus.append("image")
         .attr("xlink:href", "./paper_mario.ico")
         .attr("width", 38)
