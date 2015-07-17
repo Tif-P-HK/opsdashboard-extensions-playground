@@ -284,6 +284,7 @@ define([
       //TODO: fix label size
       // http://eyeseast.github.io/visible-data/2013/08/28/responsive-charts-with-d3/
 
+      // ********************************************************
       // Map the x and y domains into their respective ranges
       this.xRange.domain([
         d3.min(elevations, function(d){return d.m}),
@@ -295,41 +296,44 @@ define([
         d3.max(elevations, function(d){return d.z})
       ]);
 
-      // Render the x-axis
+      // ********************************************************
+      // Set up the axes
       var xAxis = d3.svg.axis()
         .scale(this.xRange)
         .tickSize(1)
         .tickFormat(d3.format(",.0f"));
 
-      this.profileGraph.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0, " + (this.height - this.margins.bottom) + ")")
-        .call(xAxis);
-
-      // Render the y-axis
-      var yAxis = d3.svg.axis()
+       var yAxis = d3.svg.axis()
         .scale(this.yRange)
         .tickSize(1)
         .orient("left")
         .tickFormat(d3.format(",.0f"));
+
+      // ********************************************************
+      // Create the axes UI
+      this.profileGraph.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0, " + (this.height - this.margins.bottom) + ")")
+        .call(xAxis);
 
       this.profileGraph.append("g")
         .attr("class", "y axis")
         .attr("transform", "translate(" + (this.margins.left) + ", 0)")
         .call(yAxis);
 
-      // Define the line function
+      // ********************************************************
+      // Define the line function, then use it to render the profile line
       var lineFunction = d3.svg.line()
         .x(lang.hitch(this, function(d){return this.xRange(d.m);}))
         .y(lang.hitch(this, function(d){return this.yRange(d.z);}))
         .interpolate("linear");
 
-      // Render the line
       this.profileGraph.append("path")
         .attr("class", "chart path")
         .attr("d", lineFunction(elevations));
 
-      // Add title to the x axis
+      // ********************************************************
+      // Add titles to the axes
       this.profileGraph.append("text")
         .attr("class", "title")
         .attr("text-anchor", "middle")
@@ -337,17 +341,15 @@ define([
         .attr("y", this.height - 10)
         .text("Distance in " + this.unit);
 
-      // Add title to the y axis
       this.profileGraph.append("text")
         .attr("class", "title")
         .attr("text-anchor", "middle")
         .attr("transform", "translate("+ (this.margins.top/2) +","+(this.height/2)+ "rotate(-90)")
         .text("Elevation in " + this.unit);
 
-      // TODO: Add titles to the axes
-      // http://www.d3noob.org/2014/07/my-favourite-tooltip-method-for-line.html
-
-      // When hovering on the graph, show the z value based on the closest x-value
+      // ********************************************************
+      // When hovering on the chart, show a circle at the corresponding point on the profile line,
+      // and show the z value based on the closest m value
       var focus = this.profileGraph.append("g")
         .attr("class", "focus")
         .style("display", "none");
@@ -359,7 +361,8 @@ define([
         .attr("x", 8)
         .attr("dy", -8);
 
-      // Create a vertical line to be shown on the x-axis of the graph when the mouse moves
+      // ********************************************************
+      // Display a vertical line on the x-axis of the graph when the mouse moves
       // Start by keeping the line off screen (i.e. set x1, x2 to -1)
       this.profileGraph.append("line")
         .attr("class", "yLine")
@@ -368,6 +371,8 @@ define([
         .attr("y1", this.margins.bottom)
         .attr("y2", this.height);
 
+      // ********************************************************
+      // Update the "focus" and the vertical line when mouse moves
       this.bisectM = d3.bisector(function(d) { return d.m; }).left;
 
       this.profileGraph.append("rect")
@@ -375,9 +380,9 @@ define([
         .attr("width", this.width)
         .attr("height", this.height)
         .on("mouseover", function() { focus.style("display", null); })
-        .on("mouseout", function() { focus.style("display", "none");})
         .on("mousemove", lang.hitch(this, function(){
-          // Show a circle on the graph
+          // Show a circle on the path of the graph
+          // Calculate its position based on the m value
           var m0 = this.xRange.invert(d3.mouse(this.domNode)[0]),
             i = this.bisectM(elevations, m0, 1),
             dElevations0 = elevations[i - 1],
@@ -386,9 +391,13 @@ define([
           focus.attr("transform", "translate(" + this.xRange(dElevations.m) + "," + this.yRange(dElevations.z) + ")");
           focus.select("text").text(this.formatValue(dElevations.z));
 
-          // Update the marker graphic's location
+          // Update the location of the marker graphic
+          // Get the m value from the screen coordinates
+          // Then find the index of its corresponding elevation info
+          // Then use the index to look up for the location info
+          // Finally, use the location info to update the location of the locationGraphic
           var m = this.xRange.invert(d3.mouse(this.domNode)[0]);
-          var i = this.bisectM(elevations, m, 1);
+          i = this.bisectM(elevations, m, 1);
           var location = locations[i];
           this.chartLocationGraphic.setGeometry(new Point(location.x, location.y, this.mapWidgetProxy.spatialReference));
           this.graphicsLayerProxy.addOrUpdateGraphic(this.chartLocationGraphic);
@@ -402,7 +411,6 @@ define([
             .attr("x1", x)
             .attr("x2", x);
         }));
-
     },
 
     formatValue: function(d) {
@@ -417,6 +425,9 @@ define([
 
       this.profileGraph.selectAll("g").remove();
       this.profileGraph.selectAll("path").remove();
+      this.profileGraph.select("line").remove();
+      this.profileGraph.select("text").remove();
+      this.profileGraph.select("rect").remove();
 
       this.clearMapGraphics();
 
