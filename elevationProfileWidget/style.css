@@ -51,17 +51,17 @@ html, body {
 }
 
 .title{
-  font-family: Arial;
+  font-family: Sans-serif;
   font-size: 16px;
 }
 
 .axis {
-  font-family: Arial !important;
-  font-size: 12px;
+  font-family: Arial;
+  font-size: 14px;
 }
 
 .axis text, {
-  font-family: Arial !important;
+  font-family: Arial;
   font-size: 12px;
 }
 
@@ -79,13 +79,14 @@ html, body {
 
 .focus circle {
   fill: none;
-  stroke: steelblue;
+  stroke: red;
 }
 
 .focus text{
   stroke: red;
-  font-family: Arial;
+  font-family: sans-serif;
   font-size: 14px;
+  shape-rendering: crispEdges;
 }
 
 .yLine {
@@ -93,4 +94,16 @@ html, body {
   vector-effect: non-scaling-stroke;
   stroke-dasharray: 5,3,3,3;
   opacity: 1;
+  stroke-width: 2;
+}
+
+.areaAbove{
+  fill: lightskyblue;;
+  stroke-width: 0;
+}
+
+.areaBelow{
+  /*background-color: sandybrown;*/
+  fill: sandybrown;
+  stroke-width: 0;
 }

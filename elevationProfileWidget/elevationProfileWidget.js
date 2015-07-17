@@ -48,12 +48,12 @@ define([
       this.inherited(arguments);
 
       // Set up the dimension of the chart to be used to display the profile graph
-      this.height = window.innerHeight * 0.85;
+      this.height = window.innerHeight;
       this.width = window.innerWidth;
       this.margins = {
         top: 20,
         right: 20,
-        bottom: 20,
+        bottom: 40,
         left: 60
       };
 
@@ -72,9 +72,9 @@ define([
         new Color("#000000"));
       this.chartLocationGraphic = new Graphic(null, chartLocationSymbol);
 
-      // update the dimensions of the SVG when the dimension of the widget changes
+      // Update the dimensions of the SVG when the dimension of the widget changes
       window.onresize = lang.hitch(this, function(){
-        this.height = window.innerHeight * 0.85;
+        this.height = window.innerHeight;
         this.width = window.innerWidth;
 
         // recalculate the x and y ranges using the new dimensions
@@ -228,6 +228,8 @@ define([
       }).then(lang.hitch(this, function (results) {
 
         if (results.length > 0) {
+          // Add the elevation info (m and z values) and locations infos (x and y values)
+          // into two arrays. They will be used to update the profile graph
           var outputProfileLayer = results[0].value;
           if (outputProfileLayer.features.length > 0) {
 
@@ -269,20 +271,20 @@ define([
       return deferred.promise;
     },
 
+    //TODO: fix label size
+    // http://eyeseast.github.io/visible-data/2013/08/28/responsive-charts-with-d3/
     showProfileGraph: function(elevationInfos){
+      // Show the elevation data on a d3 line chart, and
+      // show the location info on the map
+
       var elevations = elevationInfos.elevations;
       var locations = elevationInfos.locations;
-
-      // Use a d3 line chart to show the elevation data
 
       // set the preserveAspectRatio to none so that the SVG will scale
       // to fit entirely into the viewBox
       this.profileGraph = d3.select("#profileGraph")
         .attr("viewBox", "0 0 " + this.width + " " + this.height)
         .attr("preserveAspectRatio", "none");
-
-      //TODO: fix label size
-      // http://eyeseast.github.io/visible-data/2013/08/28/responsive-charts-with-d3/
 
       // ********************************************************
       // Map the x and y domains into their respective ranges
@@ -309,16 +311,16 @@ define([
         .orient("left")
         .tickFormat(d3.format(",.0f"));
 
-      // ********************************************************
       // Create the axes UI
       this.profileGraph.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0, " + (this.height - this.margins.bottom) + ")")
         .call(xAxis);
 
+      this.yTranslate = this.margins.top - this.margins.bottom;
       this.profileGraph.append("g")
         .attr("class", "y axis")
-        .attr("transform", "translate(" + (this.margins.left) + ", 0)")
+        .attr("transform", "translate(" + (this.margins.left) + ", " + this.yTranslate + ")")
         .call(yAxis);
 
       // ********************************************************
@@ -330,29 +332,56 @@ define([
 
       this.profileGraph.append("path")
         .attr("class", "chart path")
-        .attr("d", lineFunction(elevations));
+        .attr("d", lineFunction(elevations))
+        .attr("transform", "translate(0, "+ this.yTranslate + ")");
 
       // ********************************************************
+      // Create two area charts for coloring the SVG's background.
+      // One chart is above the profile line and one below
+
+      //// Area chart above the profile line
+      //var areaBelowFunction = d3.svg.area()
+      //  .x(lang.hitch(this, function(d){return this.xRange(d.m);}))
+      //  .y0(0)
+      //  .y1(lang.hitch(this, function(d){return this.yRange(d.z);}));
+      //
+      //this.profileGraph.append("path")
+      //  .datum(elevations)
+      //  .attr("class", "areaBelow")
+      // Area chart below the profile line
+      var areaAboveFunction = d3.svg.area()
+        .x(lang.hitch(this, function(d){return this.xRange(d.m);}))
+        .y0(lang.hitch(this, function(d){return this.yRange(d.z);}))
+        .y1(this.height - this.margins.bottom - this.yTranslate );
+
+      this.profileGraph.append("path")
+        .datum(elevations)
+        .attr("class", "areaBelow")
+        .attr("d", areaAboveFunction)
+        .attr("transform", "translate(0, " + this.yTranslate + ")");
+
       // Add titles to the axes
+      // x axis
       this.profileGraph.append("text")
         .attr("class", "title")
         .attr("text-anchor", "middle")
         .attr("x", this.width/2)
-        .attr("y", this.height - 10)
+        .attr("y", this.height - 3)
         .text("Distance in " + this.unit);
 
+      // y axis
       this.profileGraph.append("text")
         .attr("class", "title")
         .attr("text-anchor", "middle")
-        .attr("transform", "translate("+ (this.margins.top/2) +","+(this.height/2)+ "rotate(-90)")
+        .attr("transform", "translate("+ (this.margins.left/3 - 2) +","+(this.height/2)+ ")rotate(-90)")
         .text("Elevation in " + this.unit);
 
       // ********************************************************
       // When hovering on the chart, show a circle at the corresponding point on the profile line,
       // and show the z value based on the closest m value
       var focus = this.profileGraph.append("g")
-        .attr("class", "focus")
-        .style("display", "none");
+        .style("display", "none")
+        .attr("class", "focus");
 
       focus.append("circle")
         .attr("r", 4.5);
@@ -368,8 +397,8 @@ define([
         .attr("class", "yLine")
         .attr("x1", -1)
         .attr("x2", -1)
-        .attr("y1", this.margins.bottom)
-        .attr("y2", this.height);
+        .attr("y1", this.margins.top)
+        .attr("y2", this.height + this.margins.top - this.margins.bottom);
 
       // ********************************************************
       // Update the "focus" and the vertical line when mouse moves
@@ -381,15 +410,16 @@ define([
         .attr("height", this.height)
         .on("mouseover", function() { focus.style("display", null); })
         .on("mousemove", lang.hitch(this, function(){
-          // Show a circle on the path of the graph
-          // Calculate its position based on the m value
+
+          // Show a circle and the text
+          // Calculate their positions based on the m value
           var m0 = this.xRange.invert(d3.mouse(this.domNode)[0]),
             i = this.bisectM(elevations, m0, 1),
             dElevations0 = elevations[i - 1],
             dElevations1 = elevations[i],
             dElevations = m0 - dElevations0.m > dElevations1.m - m0 ? dElevations1 : dElevations0;
-          focus.attr("transform", "translate(" + this.xRange(dElevations.m) + "," + this.yRange(dElevations.z) + ")");
           focus.select("text").text(this.formatValue(dElevations.z));
+          focus.attr("transform", "translate(" + this.xRange(dElevations.m) + "," + (this.yTranslate + this.yRange(dElevations.z)) + ")");
 
           // Update the location of the marker graphic
           // Get the m value from the screen coordinates
@@ -420,7 +450,7 @@ define([
 
     clearProfileGraph: function(){
       // Called when the "Clear Profile Graph" button is clicked
-      // The profile graph and the input line will be cleared,
+      // The profile graph and the map graphics will be cleared,
       // and the widget will be reset to the start up state
 
       this.profileGraph.selectAll("g").remove();
@@ -435,7 +465,7 @@ define([
     },
 
     clearMapGraphics: function(){
-      // Clear the input line graphic and the marker graphic from the map by setting its geometry to null
+      // Clear the input line graphic and the marker graphic from the map by setting their geometry to null
       // Then update their host graphics layer
 
       this.inputLineGraphic.geometry = null;
