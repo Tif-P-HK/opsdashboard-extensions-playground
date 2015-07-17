@@ -323,6 +323,22 @@ define([
         .attr("transform", "translate(" + (this.margins.left) + ", " + this.yTranslate + ")")
         .call(yAxis);
 
+      // Add titles to the axes
+      // x axis
+      this.profileGraph.append("text")
+        .attr("class", "title")
+        .attr("text-anchor", "middle")
+        .attr("x", this.width/2)
+        .attr("y", this.height - 3)
+        .text("Distance in " + this.unit);
+
+      // y axis
+      this.profileGraph.append("text")
+        .attr("class", "title")
+        .attr("text-anchor", "middle")
+        .attr("transform", "translate("+ (this.margins.left/3 - 2) +","+(this.height/2)+ ")rotate(-90)")
+        .text("Elevation in " + this.unit);
+
       // ********************************************************
       // Define the line function, then use it to render the profile line
       var lineFunction = d3.svg.line()
@@ -339,17 +355,20 @@ define([
       // Create two area charts for coloring the SVG's background.
       // One chart is above the profile line and one below
 
-      //// Area chart above the profile line
-      //var areaBelowFunction = d3.svg.area()
-      //  .x(lang.hitch(this, function(d){return this.xRange(d.m);}))
-      //  .y0(0)
-      //  .y1(lang.hitch(this, function(d){return this.yRange(d.z);}));
-      //
-      //this.profileGraph.append("path")
-      //  .datum(elevations)
-      //  .attr("class", "areaBelow")
-      // Area chart below the profile line
+      // Area chart above the profile line
       var areaAboveFunction = d3.svg.area()
+        .x(lang.hitch(this, function(d){return this.xRange(d.m);}))
+        .y0(0)
+        .y1(lang.hitch(this, function(d){return this.yRange(d.z);}));
+
+      this.profileGraph.append("path")
+        .datum(elevations)
+        .attr("class", "areaAbove")
+        .attr("d", areaAboveFunction)
+        .attr("transform", "translate(0, " + this.yTranslate + ")");
+
+      // Area chart below the profile line
+      var areaBelowFunction = d3.svg.area()
         .x(lang.hitch(this, function(d){return this.xRange(d.m);}))
         .y0(lang.hitch(this, function(d){return this.yRange(d.z);}))
         .y1(this.height - this.margins.bottom - this.yTranslate );
@@ -357,24 +376,8 @@ define([
       this.profileGraph.append("path")
         .datum(elevations)
         .attr("class", "areaBelow")
-        .attr("d", areaAboveFunction)
+        .attr("d", areaBelowFunction)
         .attr("transform", "translate(0, " + this.yTranslate + ")");
-
-      // Add titles to the axes
-      // x axis
-      this.profileGraph.append("text")
-        .attr("class", "title")
-        .attr("text-anchor", "middle")
-        .attr("x", this.width/2)
-        .attr("y", this.height - 3)
-        .text("Distance in " + this.unit);
-
-      // y axis
-      this.profileGraph.append("text")
-        .attr("class", "title")
-        .attr("text-anchor", "middle")
-        .attr("transform", "translate("+ (this.margins.left/3 - 2) +","+(this.height/2)+ ")rotate(-90)")
-        .text("Elevation in " + this.unit);
 
       // ********************************************************
       // When hovering on the chart, show a circle at the corresponding point on the profile line,

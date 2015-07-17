@@ -66,8 +66,8 @@ html, body {
 }
 
 .path{
-  stroke: #959595;
-  stroke-width: 2px;
+  stroke: black;
+  stroke-width: 3px;
   fill: none;
   vector-effect: non-scaling-stroke;
 }
@@ -79,18 +79,18 @@ html, body {
 
 .focus circle {
   fill: none;
-  stroke: red;
+  stroke: black;
 }
 
 .focus text{
-  stroke: red;
+  stroke: black;
   font-family: sans-serif;
   font-size: 14px;
   shape-rendering: crispEdges;
 }
 
 .yLine {
-  stroke: red;
+  stroke: black;
   vector-effect: non-scaling-stroke;
   stroke-dasharray: 5,3,3,3;
   opacity: 1;
@@ -103,7 +103,6 @@ html, body {
 }
 
 .areaBelow{
-  /*background-color: sandybrown;*/
   fill: sandybrown;
   stroke-width: 0;
 }
