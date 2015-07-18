@@ -42,25 +42,12 @@ define([
 
     constructor: function(){
       this.unit = "meters";
-    },
 
-    postCreate: function(){
-      this.inherited(arguments);
+      // Variables for the line chart SVG
+      this.margins = {top: 20, right: 20, bottom: 40, left: 60};
 
-      // Set up the dimension of the chart to be used to display the profile graph
-      this.height = window.innerHeight;
-      this.width = window.innerWidth;
-      this.margins = {
-        top: 20,
-        right: 20,
-        bottom: 40,
-        left: 60
-      };
 
-      // Set up the x and y range to fit the profile graph UI into the widget's window
-      this.calculateRanges();
-
-      // Create the input line graphic to be shown on the map
+      // Input line and marker graphics to be shown on the map
       var outlineSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color("#192a64"), 3);
       this.inputLineGraphic = new Graphic(null, outlineSymbol);
 
@@ -71,18 +58,26 @@ define([
         new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color("#000000"), 1),
         new Color("#000000"));
       this.chartLocationGraphic = new Graphic(null, chartLocationSymbol);
+    },
 
-      // Update the dimensions of the SVG when the dimension of the widget changes
+    postCreate: function(){
+      this.inherited(arguments);
+
+      // Set up the x and y range to fit the profile graph UI into the widget's window
+      this.calculateRanges();
+
+      // When window resizes, recalculate the x and y ranges
+      // update the dimensions of the SVG when the dimension of the widget changes
       window.onresize = lang.hitch(this, function(){
-        this.height = window.innerHeight;
-        this.width = window.innerWidth;
-
-        // recalculate the x and y ranges using the new dimensions
         this.calculateRanges();
       });
     },
 
     calculateRanges: function(){
+      // width and height of the chart
+      this.height = window.innerHeight;
+      this.width = window.innerWidth;
+
       // Set up the range to fit the profile graph into the widget's window
       this.xRange = d3.scale.linear()
         .range([this.margins.left, this.width - this.margins.right]);
@@ -128,11 +123,6 @@ define([
       // Called when the "Draw Line" button is clicked
       // Activate the drawing toolbar when the Draw Line button is clicked
       // Show the loading icon until the profile graph calculation is done (or error-out)
-
-      var toolbarOptions = {
-        geometryTypes: ["polyline"],
-        autoDeactivate: true
-      };
       this.activateDrawingToolbar({geometryTypes: ["polyline"]}).then(lang.hitch(this, function(result){
         if(!result)
           console.log("Error activating drawing toolbar");
@@ -143,6 +133,7 @@ define([
       }));
     },
 
+    // TODO: potential API issue: If the Cancel button on the drawing toolbar is clicked, the tool cannot be initiated again
     cancelSketch: function(){
       // User clicks the Cancel button, reset the widget to the startup state
 
@@ -153,9 +144,6 @@ define([
     toolbarDrawComplete: function(inputLine){
       // Capture the geometry of the input line,
       // then use it to calculate the elevation profile
-
-      // Clear the previous geometry of the input line
-      this.clearMapGraphics();
 
       this.showCalculatingPage();
 
@@ -387,7 +375,7 @@ define([
         .attr("class", "focus");
 
       /*
-       http://findicons.com/icon/423544/retro_mario
+      Icon source:
        http://findicons.com/icon/423523/paper_mario?id=423632
       */
       focus.append("image")
@@ -462,7 +450,7 @@ define([
       return formatValue(d) + " " + this.unit;
     },
 
-    clearProfileGraph: function(){
+    clearResult: function(){
       // Called when the "Clear Profile Graph" button is clicked
       // The profile graph and the map graphics will be cleared,
       // and the widget will be reset to the start up state
@@ -473,18 +461,9 @@ define([
       this.profileGraph.select("text").remove();
       this.profileGraph.select("rect").remove();
 
-      this.clearMapGraphics();
+      this.graphicsLayerProxy.clear();
 
       this.showStartupPage();
-    },
-
-    clearMapGraphics: function(){
-      // Clear the input line graphic and the marker graphic from the map by setting their geometry to null
-      // Then update their host graphics layer
-
-      this.inputLineGraphic.geometry = null;
-      this.chartLocationGraphic.geometry = null;
-      this.graphicsLayerProxy.addOrUpdateGraphics([this.inputLineGraphic, this.chartLocationGraphic]);
     },
 
     showStartupPage: function(){
