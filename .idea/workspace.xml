@@ -7,6 +7,7 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidgetConfigTemplate.html" afterPath="$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidgetConfigTemplate.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidgetTemplate.html" afterPath="$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidgetTemplate.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/elevationProfileWidget/style.css" afterPath="$PROJECT_DIR$/elevationProfileWidget/style.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="extensions.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -40,8 +41,8 @@
       <file leaf-file-name="elevationProfileWidget.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidget.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4972737">
-              <caret line="19" column="51" selection-start-line="19" selection-start-column="51" selection-end-line="19" selection-end-column="51" />
+            <state vertical-scroll-proportion="-0.6281352">
+              <caret line="21" column="10" selection-start-line="21" selection-start-column="10" selection-end-line="21" selection-end-column="10" />
               <folding>
                 <element signature="e#1015#1819#0" expanded="false" />
                 <element signature="e#1848#2247#0" expanded="false" />
@@ -797,8 +798,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/elevationProfileWidget/elevationProfileWidget.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4972737">
-          <caret line="19" column="51" selection-start-line="19" selection-start-column="51" selection-end-line="19" selection-end-column="51" />
+        <state vertical-scroll-proportion="-0.6281352">
+          <caret line="21" column="10" selection-start-line="21" selection-start-column="10" selection-end-line="21" selection-end-column="10" />
           <folding>
             <element signature="e#1015#1819#0" expanded="false" />
             <element signature="e#1848#2247#0" expanded="false" />
