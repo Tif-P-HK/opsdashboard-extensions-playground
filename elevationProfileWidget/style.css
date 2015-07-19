@@ -6,6 +6,18 @@ html, body {
   overflow: hidden;
 }
 
+.form-control,
+.configLabel{
+  font-family: Arial;
+  font-size: 12px;
+  color: black;
+}
+
+.form-group {
+  margin: 10px 0;
+  width: 100%;
+}
+
 .table {
   display: table;
   width: 100%;

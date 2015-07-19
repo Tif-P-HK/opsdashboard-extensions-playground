@@ -41,11 +41,10 @@ define([
     templateString: templateString,
 
     constructor: function(){
-      this.unit = "meters";
+      this.unit = "Miles";
 
       // Variables for the line chart SVG
       this.margins = {top: 20, right: 20, bottom: 40, left: 60};
-
 
       // Input line and marker graphics to be shown on the map
       var outlineSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color("#192a64"), 3);
@@ -104,6 +103,10 @@ define([
       // Set up the Geoprocessing service for calculating the elevation profile
       this.profileService = new Geoprocessor(profileServiceUrl);
       this.profileService.outSpatialReference = this.mapWidgetProxy.spatialReference;
+
+      // Set the distance unit using the value from dataSourceConfigs
+      if(this.dataSourceConfigs[0].distanceUnit)
+        this.unit = this.dataSourceConfigs[0].distanceUnit;
 
       // Create a graphics layer for the input line graphic
       return this.mapWidgetProxy.createGraphicsLayerProxy().then(lang.hitch(this, function(graphicsLayerProxy){
@@ -191,7 +194,7 @@ define([
       //Assume geographic if not in web mercator
       var geoPolyline = (inputLine.spatialReference.isWebMercator()) ?
         webMercatorUtils.webMercatorToGeographic(inputLine) : inputLine;
-      var profileLengthMeters = geodesicUtils.geodesicLengths([geoPolyline], Units.METERS)[0];
+      var profileLengthMeters = geodesicUtils.geodesicLengths([geoPolyline], this.getUnitConstant())[0];
       var samplingDistance = (profileLengthMeters / 198);
 
       // Create input feature set for GP Task
@@ -229,9 +232,11 @@ define([
               var elevations = [];
               var locations = [];
               profilePath.forEach(lang.hitch(this, function(profilePoint){
+                // m and z values are in meters.
+                // They need to be converted into user's selected unit
                 var elevationInfo = {
-                  m: profilePoint[3],
-                  z: profilePoint[2]
+                  m: this.convertMFromMeter(profilePoint[3]),
+                  z: this.convertZFromMeter(profilePoint[2])
                 };
                 var locationInfo = {
                   x: profilePoint[0],
@@ -293,7 +298,7 @@ define([
         .tickSize(1)
         .tickFormat(d3.format(",.0f"));
 
-       var yAxis = d3.svg.axis()
+      var yAxis = d3.svg.axis()
         .scale(this.yRange)
         .tickSize(1)
         .orient("left")
@@ -325,7 +330,7 @@ define([
         .attr("class", "title")
         .attr("text-anchor", "middle")
         .attr("transform", "translate("+ (this.margins.left/3 - 2) +","+(this.height/2)+ ")rotate(-90)")
-        .text("Elevation in " + this.unit);
+        .text("Elevation in " + this.getYAxisLabel());
 
       // ********************************************************
       // Define the line function, then use it to render the profile line
@@ -375,9 +380,9 @@ define([
         .attr("class", "focus");
 
       /*
-      Icon source:
+       Icon source:
        http://findicons.com/icon/423523/paper_mario?id=423632
-      */
+       */
       focus.append("image")
         .attr("xlink:href", "./paper_mario.ico")
         .attr("width", 38)
@@ -445,11 +450,6 @@ define([
         }));
     },
 
-    formatValue: function(d) {
-      var formatValue = d3.format(",.0f");
-      return formatValue(d) + " " + this.unit;
-    },
-
     clearResult: function(){
       // Called when the "Clear Profile Graph" button is clicked
       // The profile graph and the map graphics will be cleared,
@@ -464,6 +464,44 @@ define([
       this.graphicsLayerProxy.clear();
 
       this.showStartupPage();
+    },
+
+    getUnitConstant: function(){
+      // Return the unit constant based on the given string
+      // Default is Units.Miles
+      if(this.unit === "Kilometers")
+        return Units.KILOMETERS;
+      else if(this.unit === "Miles")
+        return Units.MILES;
+    },
+
+    convertMFromMeter: function(valueInMeter){
+      // Convert the distance value (in meters) based on the unit setting
+      if(this.unit == "Kilometers")
+        return valueInMeter * 0.001;
+      else if(this.unit == "Miles")
+        return valueInMeter * 0.000621371;
+    },
+
+    convertZFromMeter: function(valueInMeter){
+      // Convert the height value (in meters) to feet if the distance unit is miles
+      if(this.unit == "Kilometers")
+        return valueInMeter;
+      else if(this.unit == "Miles")
+        return valueInMeter * 3.28084;
+    },
+
+    getYAxisLabel: function(){
+      // Return the y-axis label based on the distance unit
+      if(this.unit === "Kilometers")
+        return "meters";
+      else if(this.unit === "Miles")
+        return "feet";
+    },
+
+    formatValue: function(d) {
+      var formatValue = d3.format(",.3f");
+      return formatValue(d) + " " + this.unit;
     },
 
     showStartupPage: function(){
