@@ -3,11 +3,8 @@
   "title": "Elevation Profile",
   "description": "Get elevation profile",
   "usePortalServices": true,
-  "useDataFromView": true,
   "thumbnailPath": "thumbnail.png",
   "configuration": {
-    "path": "elevationProfileWidgetConfig.html",
-    "requireDataSource": true,
     "requireMapWidget": true
   },
   "runtime": {

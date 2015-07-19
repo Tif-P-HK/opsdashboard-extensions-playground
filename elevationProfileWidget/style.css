@@ -7,17 +7,12 @@ html, body {
 }
 
 .form-control,
-.configLabel{
+.unitLabel {
   margin-right: 10px;
   font-family: Arial;
   font-size: 12px;
   color: black;
 }
-
-/*.configLabeloup {*/
-  /*margin-left: 10px;*/
-  /*width: auto;*/
-/*}*/
 
 .table {
   display: table;

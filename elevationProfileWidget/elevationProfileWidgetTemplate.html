@@ -1,5 +1,4 @@
 <div class="table" >
-
   <div class="cell buttonContainer" data-dojo-attach-point="drawLineMsg">
     <button data-dojo-attach-event="onClick:drawLine">Draw Line</button>
   </div>
@@ -14,18 +13,10 @@
 
   <div class="cell middle hide" data-dojo-attach-point="showGraphMsg">
     <div>
+      <button data-dojo-attach-event="onClick:selectedUnitChanged">Toggle Unit</button>
       <button data-dojo-attach-event="onClick:clearResult">Clear Profile Graph</button>
-      <button class="configLabel" data-dojo-attach-event="onClick:selectedUnitChanged">Creepy button</button>
-      <!--<div class="form-group">-->
-        <label class="configLabel">Units:</label>
-        <select data-dojo-type="dijit/form/Select"
-                data-dojo-attach-point="unitCombo"
-                class="form-control"
-                data-dojo-attach-event="onChange:selectedUnitChanged"></select>
-      <!--</div>-->
     </div>
 
     <svg id="profileGraph"></svg>
   </div>
-
 </div>

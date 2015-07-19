@@ -15,6 +15,7 @@ define([
   "esri/geometry/Point",
   "dijit/_WidgetBase",
   "dijit/_TemplatedMixin",
+  "dijit/_WidgetsInTemplateMixin",
   "esri/opsdashboard/WidgetProxy",
   "dojo/text!./elevationProfileWidgetTemplate.html"
 ], function(
@@ -34,13 +35,16 @@ define([
   Point,
   _WidgetBase,
   _TemplatedMixin,
+  _WidgetsInTemplateMixin,
   WidgetProxy,
   templateString){
-  return declare("elevationProfileWidget", [_WidgetBase, _TemplatedMixin, WidgetProxy], {
+  return declare("elevationProfileWidget", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, WidgetProxy], {
 
     templateString: templateString,
 
     constructor: function(){
+      this.inherited(arguments);
+
       this.unit = "Miles";
 
       // Variables for the line chart SVG
@@ -62,7 +66,7 @@ define([
     postCreate: function(){
       this.inherited(arguments);
 
-      // Set up the x and y range to fit the profile graph UI into the widget's window
+      // Set up the x and y ranges to fit the profile graph UI into the widget's window
       this.calculateRanges();
 
       // When window resizes, recalculate the x and y ranges
@@ -103,10 +107,6 @@ define([
       // Set up the Geoprocessing service for calculating the elevation profile
       this.profileService = new Geoprocessor(profileServiceUrl);
       this.profileService.outSpatialReference = this.mapWidgetProxy.spatialReference;
-
-      // Set the distance unit using the value from dataSourceConfigs
-      if(this.dataSourceConfigs[0].distanceUnit)
-        this.unit = this.dataSourceConfigs[0].distanceUnit;
 
       // Create a graphics layer for the input line graphic
       return this.mapWidgetProxy.createGraphicsLayerProxy().then(lang.hitch(this, function(graphicsLayerProxy){
@@ -234,8 +234,6 @@ define([
               var locations = [];
               profilePath.forEach(lang.hitch(this, function(profilePoint){
                 var elevationInfo = {
-                  //m: this.convertMValueFromMeter(profilePoint[3]),
-                  //z: this.convertZValueFromMeter(profilePoint[2])
                   m: profilePoint[3],
                   z: profilePoint[2]
                 };
@@ -270,6 +268,9 @@ define([
     showProfileGraph: function(){
       // Show the elevation data on a d3 line chart, and
       // show the location info on the map
+
+      if(!this.elevationInfos)
+        return;
 
       var elevations = this.elevationInfos.elevations;
       var locations = this.elevationInfos.locations;
@@ -459,15 +460,18 @@ define([
     clearResult: function(){
       // Destroy the elements appended to the chart and remove the map graphics
       // Then show startup page
-      this.destroyProfileGraph();
+      this.clearProfileGraph();
 
       this.graphicsLayerProxy.clear();
 
       this.showStartupPage();
     },
 
-    destroyProfileGraph: function(){
+    clearProfileGraph: function(){
       // Clear the UIs appended to the graph
+
+      if(!this.profileGraph)
+        return;
 
       this.profileGraph.selectAll("g").remove();
       this.profileGraph.selectAll("path").remove();
@@ -477,16 +481,13 @@ define([
     },
 
     selectedUnitChanged: function(){
-      if(this.unit === "Kilometers"){
-        this.unit = "Miles";
-        console.log("unit changed to Miles");
-      }
-      else{
+      // Selected unit has changed. Clear the profile graph elements and recreate them
+      if(this.unit === "Miles")
         this.unit = "Kilometers";
-        console.log("unit changed to Kilometers");
-      }
+      else
+        this.unit = "Miles";
 
-      this.destroyProfileGraph();
+      this.clearProfileGraph();
       this.showProfileGraph();
     },
 
@@ -524,22 +525,6 @@ define([
       }));
       return newElevations;
     },
-
-    //convertMValueFromMeter: function(valueInMeter){
-    //  // Convert the distance value (in meters) based on the unit setting
-    //  if(this.unit == "Kilometers")
-    //    return valueInMeter * 0.001;
-    //  else if(this.unit == "Miles")
-    //    return valueInMeter * 0.000621371;
-    //},
-    //
-    //convertZValueFromMeter: function(valueInMeter){
-    //  // Convert the height value (in meters) to feet if the distance unit is miles
-    //  if(this.unit == "Kilometers")
-    //    return valueInMeter;
-    //  else if(this.unit == "Miles")
-    //    return valueInMeter * 3.28084;
-    //},
 
     getZValueUnit: function(){
       // Return the y-axis label based on the distance unit
