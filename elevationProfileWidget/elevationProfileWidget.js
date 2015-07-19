@@ -73,6 +73,11 @@ define([
       // update the dimensions of the SVG when the dimension of the widget changes
       window.onresize = lang.hitch(this, function(){
         this.calculateRanges();
+
+        if(this.profileGraph){
+          this.clearProfileGraph();
+          this.showProfileGraph();
+        }
       });
     },
 
@@ -384,9 +389,9 @@ define([
       var focus = this.profileGraph.append("g")
         .style("display", "none")
         .attr("class", "focus");
-      //
-      //focus.append("circle")
-      //  .attr("r", 4.5);
+
+      focus.append("circle")
+        .attr("r", 4.5);
 
       focus.append("text")
         .attr("x", 8)
@@ -399,9 +404,6 @@ define([
         .attr("height", 38)
         .attr("x", 3)
         .attr("y", "-2em");
-
-      focus.append("circle")
-        .attr("r", 5);
 
       // ********************************************************
       // Display a vertical line on the x-axis of the graph when the mouse moves
