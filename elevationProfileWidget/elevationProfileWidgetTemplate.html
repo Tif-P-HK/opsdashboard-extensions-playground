@@ -13,9 +13,18 @@
   <div class="cell middle loading-big hide" data-dojo-attach-point="calculatingMsg"></div>
 
   <div class="cell middle hide" data-dojo-attach-point="showGraphMsg">
-    <div class="buttonContainer">
+    <div>
       <button data-dojo-attach-event="onClick:clearResult">Clear Profile Graph</button>
+      <button class="configLabel" data-dojo-attach-event="onClick:selectedUnitChanged">Creepy button</button>
+      <!--<div class="form-group">-->
+        <label class="configLabel">Units:</label>
+        <select data-dojo-type="dijit/form/Select"
+                data-dojo-attach-point="unitCombo"
+                class="form-control"
+                data-dojo-attach-event="onChange:selectedUnitChanged"></select>
+      <!--</div>-->
     </div>
+
     <svg id="profileGraph"></svg>
   </div>
 

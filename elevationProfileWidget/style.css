@@ -8,15 +8,16 @@ html, body {
 
 .form-control,
 .configLabel{
+  margin-right: 10px;
   font-family: Arial;
   font-size: 12px;
   color: black;
 }
 
-.form-group {
-  margin: 10px 0;
-  width: 100%;
-}
+/*.configLabeloup {*/
+  /*margin-left: 10px;*/
+  /*width: auto;*/
+/*}*/
 
 .table {
   display: table;
@@ -110,7 +111,7 @@ html, body {
 }
 
 .areaAbove{
-  fill: lightskyblue;;
+  fill: lightskyblue;
   stroke-width: 0;
 }
 

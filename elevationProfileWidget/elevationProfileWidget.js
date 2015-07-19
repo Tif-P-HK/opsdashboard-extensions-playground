@@ -136,7 +136,6 @@ define([
       }));
     },
 
-    // TODO: potential API issue: If the Cancel button on the drawing toolbar is clicked, the tool cannot be initiated again
     cancelSketch: function(){
       // User clicks the Cancel button, reset the widget to the startup state
 
@@ -153,10 +152,12 @@ define([
       // Calculate the elevation profile
       this.generateProfileGraph(inputLine).then(lang.hitch(this, function(elevationInfos){
 
+        this.elevationInfos = elevationInfos;
+
         // Hide the loading icon and show the profile graph
         this.showResultPage();
 
-        if(!elevationInfos || !elevationInfos.elevations || !elevationInfos.locations){
+        if(!this.elevationInfos || !this.elevationInfos.elevations || !this.elevationInfos.locations){
           console.log("Unable to get the elevation info");
           return;
         }
@@ -166,7 +167,7 @@ define([
         this.graphicsLayerProxy.addOrUpdateGraphic(this.inputLineGraphic);
 
         // Show the elevation info on a profile graph
-        this.showProfileGraph(elevationInfos);
+        this.showProfileGraph();
       }), lang.hitch(this, function(err){
         // Error occurred when calculating the elevation profile
         // Reset the widget to the startup state
@@ -235,8 +236,8 @@ define([
                 // m and z values are in meters.
                 // They need to be converted into user's selected unit
                 var elevationInfo = {
-                  m: this.convertMFromMeter(profilePoint[3]),
-                  z: this.convertZFromMeter(profilePoint[2])
+                  m: this.convertMValueFromMeter(profilePoint[3]),
+                  z: this.convertZValueFromMeter(profilePoint[2])
                 };
                 var locationInfo = {
                   x: profilePoint[0],
@@ -266,12 +267,12 @@ define([
 
     //TODO: fix label size
     // http://eyeseast.github.io/visible-data/2013/08/28/responsive-charts-with-d3/
-    showProfileGraph: function(elevationInfos){
+    showProfileGraph: function(){
       // Show the elevation data on a d3 line chart, and
       // show the location info on the map
 
-      var elevations = elevationInfos.elevations;
-      var locations = elevationInfos.locations;
+      var elevations = this.elevationInfos.elevations;
+      var locations = this.elevationInfos.locations;
 
       // set the preserveAspectRatio to none so that the SVG will scale
       // to fit entirely into the viewBox
@@ -296,13 +297,13 @@ define([
       var xAxis = d3.svg.axis()
         .scale(this.xRange)
         .tickSize(1)
-        .tickFormat(d3.format(",.0f"));
+        .tickFormat(this.mValueFormat());
 
       var yAxis = d3.svg.axis()
         .scale(this.yRange)
         .tickSize(1)
         .orient("left")
-        .tickFormat(d3.format(",.0f"));
+        .tickFormat(this.zValueFormat());
 
       // Create the axes UI
       this.profileGraph.append("g")
@@ -330,7 +331,7 @@ define([
         .attr("class", "title")
         .attr("text-anchor", "middle")
         .attr("transform", "translate("+ (this.margins.left/3 - 2) +","+(this.height/2)+ ")rotate(-90)")
-        .text("Elevation in " + this.getYAxisLabel());
+        .text("Elevation in " + this.getZValueUnit());
 
       // ********************************************************
       // Define the line function, then use it to render the profile line
@@ -425,7 +426,8 @@ define([
             dElevations0 = elevations[i - 1],
             dElevations1 = elevations[i],
             dElevations = m0 - dElevations0.m > dElevations1.m - m0 ? dElevations1 : dElevations0;
-          focus.select("text").text(this.formatValue(dElevations.z));
+          var focusText = this.zValueFormat()(dElevations.z) + " " + this.getZValueUnit();
+          focus.select("text").text(focusText);
           focus.attr("transform", "translate(" + this.xRange(dElevations.m) + "," + (this.yTranslate + this.yRange(dElevations.z)) + ")");
 
           // Update the location of the marker graphic
@@ -451,19 +453,38 @@ define([
     },
 
     clearResult: function(){
+      // Destroy the elements appended to the chart and remove the map graphics
+      // Then show startup page
+      this.destroyUIs();
+      this.showStartupPage();
+    },
+
+    destroyUIs: function(){
       // Called when the "Clear Profile Graph" button is clicked
       // The profile graph and the map graphics will be cleared,
       // and the widget will be reset to the start up state
 
       this.profileGraph.selectAll("g").remove();
       this.profileGraph.selectAll("path").remove();
-      this.profileGraph.select("line").remove();
-      this.profileGraph.select("text").remove();
-      this.profileGraph.select("rect").remove();
+      this.profileGraph.selectAll("line").remove();
+      this.profileGraph.selectAll("text").remove();
+      this.profileGraph.selectAll("rect").remove();
 
       this.graphicsLayerProxy.clear();
+    },
 
-      this.showStartupPage();
+    selectedUnitChanged: function(){
+      if(this.unit === "Kilometers"){
+        this.unit = "Miles";
+        console.log("unit changed to Miles");
+      }
+      else{
+        this.unit = "Kilometers";
+        console.log("unit changed to Kilometers");
+      }
+
+      this.destroyUIs();
+      this.showProfileGraph();
     },
 
     getUnitConstant: function(){
@@ -475,7 +496,7 @@ define([
         return Units.MILES;
     },
 
-    convertMFromMeter: function(valueInMeter){
+    convertMValueFromMeter: function(valueInMeter){
       // Convert the distance value (in meters) based on the unit setting
       if(this.unit == "Kilometers")
         return valueInMeter * 0.001;
@@ -483,7 +504,7 @@ define([
         return valueInMeter * 0.000621371;
     },
 
-    convertZFromMeter: function(valueInMeter){
+    convertZValueFromMeter: function(valueInMeter){
       // Convert the height value (in meters) to feet if the distance unit is miles
       if(this.unit == "Kilometers")
         return valueInMeter;
@@ -491,7 +512,7 @@ define([
         return valueInMeter * 3.28084;
     },
 
-    getYAxisLabel: function(){
+    getZValueUnit: function(){
       // Return the y-axis label based on the distance unit
       if(this.unit === "Kilometers")
         return "meters";
@@ -499,9 +520,12 @@ define([
         return "feet";
     },
 
-    formatValue: function(d) {
-      var formatValue = d3.format(",.3f");
-      return formatValue(d) + " " + this.unit;
+    zValueFormat: function(){
+      return d3.format(",.0f");
+    },
+
+    mValueFormat: function(){
+      return d3.format(",.2f");
     },
 
     showStartupPage: function(){
