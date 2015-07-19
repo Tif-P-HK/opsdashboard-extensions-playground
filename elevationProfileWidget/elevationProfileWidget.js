@@ -286,7 +286,7 @@ define([
         .attr("preserveAspectRatio", "none");
 
       // ********************************************************
-      // Map the x and y domains into their respective ranges
+      // Map the x and y (m and z values respectively) domains into their respective ranges
       this.xRange.domain([
         d3.min(elevations, function(d){return d.m}),
         d3.max(elevations, function(d){return d.m})
@@ -384,24 +384,24 @@ define([
       var focus = this.profileGraph.append("g")
         .style("display", "none")
         .attr("class", "focus");
+      //
+      //focus.append("circle")
+      //  .attr("r", 4.5);
 
-      /*
-       Icon source:
-       http://findicons.com/icon/423523/paper_mario?id=423632
-       */
+      focus.append("text")
+        .attr("x", 8)
+        .attr("y", "1.3em");
+
+      // Icon source: http://findicons.com/icon/423523/paper_mario?id=423632
       focus.append("image")
         .attr("xlink:href", "./paper_mario.ico")
         .attr("width", 38)
         .attr("height", 38)
-        .attr("dx", 5)
-        .attr("dy", 0);
+        .attr("x", 3)
+        .attr("y", "-2em");
 
       focus.append("circle")
-        .attr("r", 4.5);
-
-      focus.append("text")
-        .attr("x", 8)
-        .attr("dy", -8);
+        .attr("r", 5);
 
       // ********************************************************
       // Display a vertical line on the x-axis of the graph when the mouse moves
