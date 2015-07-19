@@ -233,11 +233,11 @@ define([
               var elevations = [];
               var locations = [];
               profilePath.forEach(lang.hitch(this, function(profilePoint){
-                // m and z values are in meters.
-                // They need to be converted into user's selected unit
                 var elevationInfo = {
-                  m: this.convertMValueFromMeter(profilePoint[3]),
-                  z: this.convertZValueFromMeter(profilePoint[2])
+                  //m: this.convertMValueFromMeter(profilePoint[3]),
+                  //z: this.convertZValueFromMeter(profilePoint[2])
+                  m: profilePoint[3],
+                  z: profilePoint[2]
                 };
                 var locationInfo = {
                   x: profilePoint[0],
@@ -273,6 +273,10 @@ define([
 
       var elevations = this.elevationInfos.elevations;
       var locations = this.elevationInfos.locations;
+
+      // m and z values are in meters.
+      // They need to be converted into user's selected unit
+      elevations = this.convertElevationInfoFromMeter(elevations);
 
       // set the preserveAspectRatio to none so that the SVG will scale
       // to fit entirely into the viewBox
@@ -455,22 +459,21 @@ define([
     clearResult: function(){
       // Destroy the elements appended to the chart and remove the map graphics
       // Then show startup page
-      this.destroyUIs();
+      this.destroyProfileGraph();
+
+      this.graphicsLayerProxy.clear();
+
       this.showStartupPage();
     },
 
-    destroyUIs: function(){
-      // Called when the "Clear Profile Graph" button is clicked
-      // The profile graph and the map graphics will be cleared,
-      // and the widget will be reset to the start up state
+    destroyProfileGraph: function(){
+      // Clear the UIs appended to the graph
 
       this.profileGraph.selectAll("g").remove();
       this.profileGraph.selectAll("path").remove();
       this.profileGraph.selectAll("line").remove();
       this.profileGraph.selectAll("text").remove();
       this.profileGraph.selectAll("rect").remove();
-
-      this.graphicsLayerProxy.clear();
     },
 
     selectedUnitChanged: function(){
@@ -483,7 +486,7 @@ define([
         console.log("unit changed to Kilometers");
       }
 
-      this.destroyUIs();
+      this.destroyProfileGraph();
       this.showProfileGraph();
     },
 
@@ -496,21 +499,47 @@ define([
         return Units.MILES;
     },
 
-    convertMValueFromMeter: function(valueInMeter){
-      // Convert the distance value (in meters) based on the unit setting
-      if(this.unit == "Kilometers")
-        return valueInMeter * 0.001;
-      else if(this.unit == "Miles")
-        return valueInMeter * 0.000621371;
+    convertElevationInfoFromMeter: function(elevations){
+      // For each item in elevationInfos, convert the m and z values to their appropriate unit using this.unit
+      // TODO: Is it possible to do something like LINQ does
+      var newM, newZ;
+      var newElevations = [];
+      elevations.forEach(lang.hitch(this, function(elevation){
+        // Convert m and z
+        if(this.unit == "Kilometers"){
+          // If unit is metric: convert m (distance) from m to km, no need to convert z (elevation)
+          newM = elevation.m * 0.001;
+          newZ = elevation.z;
+        }
+        else if(this.unit == "Miles")
+        {
+          // If unit is US standard: convert m (distance) from m to mile, convert z (elevation) to feet
+          newM = elevation.m * 0.000621371;
+          newZ = elevation.z * 3.28084;
+        }
+        newElevations.push({
+          m: newM,
+          z: newZ
+        });
+      }));
+      return newElevations;
     },
 
-    convertZValueFromMeter: function(valueInMeter){
-      // Convert the height value (in meters) to feet if the distance unit is miles
-      if(this.unit == "Kilometers")
-        return valueInMeter;
-      else if(this.unit == "Miles")
-        return valueInMeter * 3.28084;
-    },
+    //convertMValueFromMeter: function(valueInMeter){
+    //  // Convert the distance value (in meters) based on the unit setting
+    //  if(this.unit == "Kilometers")
+    //    return valueInMeter * 0.001;
+    //  else if(this.unit == "Miles")
+    //    return valueInMeter * 0.000621371;
+    //},
+    //
+    //convertZValueFromMeter: function(valueInMeter){
+    //  // Convert the height value (in meters) to feet if the distance unit is miles
+    //  if(this.unit == "Kilometers")
+    //    return valueInMeter;
+    //  else if(this.unit == "Miles")
+    //    return valueInMeter * 3.28084;
+    //},
 
     getZValueUnit: function(){
       // Return the y-axis label based on the distance unit
