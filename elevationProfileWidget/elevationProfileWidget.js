@@ -45,16 +45,17 @@ define([
     constructor: function(){
       this.inherited(arguments);
 
+      // Set the default unit to US standard (distance unit is miles)
       this.unit = "Miles";
 
       // Variables for the line chart SVG
       this.margins = {top: 20, right: 20, bottom: 40, left: 60};
 
-      // Input line and marker graphics to be shown on the map
+      // Input line to be shown on the map
       var outlineSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color("#192a64"), 3);
       this.inputLineGraphic = new Graphic(null, outlineSymbol);
 
-      // Create a location graphic to indicate the map location when user hovers on the profile graph
+      // Location graphic that indicates the corresponding map location when user hovers on the profile graph
       var chartLocationSymbol = new SimpleMarkerSymbol(
         SimpleMarkerSymbol.STYLE_X,
         15,
@@ -69,8 +70,7 @@ define([
       // Set up the x and y ranges to fit the profile graph UI into the widget's window
       this.calculateRanges();
 
-      // When window resizes, recalculate the x and y ranges
-      // update the dimensions of the SVG when the dimension of the widget changes
+      // When window resizes, redraw the chart based on the new dimension
       window.onresize = lang.hitch(this, function(){
         this.calculateRanges();
 
@@ -113,7 +113,7 @@ define([
       this.profileService = new Geoprocessor(profileServiceUrl);
       this.profileService.outSpatialReference = this.mapWidgetProxy.spatialReference;
 
-      // Create a graphics layer for the input line graphic
+      // Create a graphics layer input line and the location marker graphics
       return this.mapWidgetProxy.createGraphicsLayerProxy().then(lang.hitch(this, function(graphicsLayerProxy){
 
         // Make a reference to graphicsLayerProxy, then add the input line graphic and the marker graphic
@@ -130,7 +130,7 @@ define([
     drawLine: function(){
       // Called when the "Draw Line" button is clicked
       // Activate the drawing toolbar when the Draw Line button is clicked
-      // Show the loading icon until the profile graph calculation is done (or error-out)
+      // Show the waiting page until the drawing finishes
       this.activateDrawingToolbar({geometryTypes: ["polyline"]}).then(lang.hitch(this, function(result){
         if(!result)
           console.log("Error activating drawing toolbar");
@@ -142,7 +142,7 @@ define([
     },
 
     cancelSketch: function(){
-      // User clicks the Cancel button, reset the widget to the startup state
+      // User clicks the Start Again button, reset the widget to the startup state
 
       this.deactivateDrawingToolbar(this.mapWidgetProxy);
       this.showStartupPage();
@@ -171,7 +171,7 @@ define([
         this.inputLineGraphic.setGeometry(inputLine);
         this.graphicsLayerProxy.addOrUpdateGraphic(this.inputLineGraphic);
 
-        // Show the elevation info on a profile graph
+        // Show the elevation info on the profile graph
         this.showProfileGraph();
       }), lang.hitch(this, function(err){
         // Error occurred when calculating the elevation profile
@@ -268,8 +268,6 @@ define([
       return deferred.promise;
     },
 
-    //TODO: fix label size
-    // http://eyeseast.github.io/visible-data/2013/08/28/responsive-charts-with-d3/
     showProfileGraph: function(){
       // Show the elevation data on a d3 line chart, and
       // show the location info on the map
