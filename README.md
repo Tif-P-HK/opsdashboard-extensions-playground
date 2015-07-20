@@ -1,5 +1,5 @@
 # opsdashboard-extensions-playground
-This is a place with extensions built for Operations Dashboard for ArcGIS. All extensions are experimental, under construction, or proved to be failure. This repository has no association with the Operations Dashboard samples repository under https://github.com/Esri. 
+This is a place with extensions built for Operations Dashboard for ArcGIS. Extensions are either experimental, under construction, proved to be failure, or all of the above. This repository has no association with the Operations Dashboard samples repository under https://github.com/Esri. 
 
 ### Licensing
 
