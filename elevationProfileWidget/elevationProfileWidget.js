@@ -15,7 +15,6 @@ define([
   "esri/geometry/Point",
   "dijit/_WidgetBase",
   "dijit/_TemplatedMixin",
-  "dijit/_WidgetsInTemplateMixin",
   "esri/opsdashboard/WidgetProxy",
   "dojo/text!./elevationProfileWidgetTemplate.html"
 ], function(
@@ -35,10 +34,9 @@ define([
   Point,
   _WidgetBase,
   _TemplatedMixin,
-  _WidgetsInTemplateMixin,
   WidgetProxy,
   templateString){
-  return declare("elevationProfileWidget", [_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, WidgetProxy], {
+  return declare("elevationProfileWidget", [_WidgetBase, _TemplatedMixin, WidgetProxy], {
 
     templateString: templateString,
 
@@ -48,14 +46,14 @@ define([
       // Set the default unit to US standard (distance unit is miles)
       this.unit = "Miles";
 
-      // Variables for the line chart SVG
+      // Margins for the profile graph SVG
       this.margins = {top: 20, right: 20, bottom: 40, left: 60};
 
       // Input line to be shown on the map
       var outlineSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color("#192a64"), 3);
       this.inputLineGraphic = new Graphic(null, outlineSymbol);
 
-      // Location graphic that indicates the corresponding map location when user hovers on the profile graph
+      // A cross symbol that marks the corresponding map location when user hovers on the profile graph
       var chartLocationSymbol = new SimpleMarkerSymbol(
         SimpleMarkerSymbol.STYLE_X,
         15,
@@ -70,7 +68,7 @@ define([
       // Set up the x and y ranges to fit the profile graph UI into the widget's window
       this.calculateRanges();
 
-      // When window resizes, redraw the chart based on the new dimension
+      // When window resizes, redraw the profile graph based on the new dimension
       window.onresize = lang.hitch(this, function(){
         this.calculateRanges();
 
@@ -82,11 +80,9 @@ define([
     },
 
     calculateRanges: function(){
-      // width and height of the chart
       this.height = window.innerHeight;
       this.width = window.innerWidth;
 
-      // Set up the range to fit the profile graph into the widget's window
       this.xRange = d3.scale.linear()
         .range([this.margins.left, this.width - this.margins.right]);
 
@@ -99,8 +95,8 @@ define([
       // when the host (Operations Dashboard) is ready
 
       // Retrieve the async elevation service specified for the organization
-      // Note: The elevationProfileFeatureAction.json manifest file must have
-      // the "usePortalServices" set to true in order for the elevation  service
+      // Note: The elevationProfileWidget.json manifest file must have
+      // the "usePortalServices" set to true in order for the elevation service
       // (and any other helper services) to be retrieved
       if(!this.portalHelperServices || !this.portalHelperServices.elevationSync){
         console.log("Cannot get the elevation service.");
@@ -108,15 +104,12 @@ define([
       }
 
       var profileServiceUrl = this.portalHelperServices.elevationSync.url + "/Profile";
-
-      // Set up the Geoprocessing service for calculating the elevation profile
       this.profileService = new Geoprocessor(profileServiceUrl);
       this.profileService.outSpatialReference = this.mapWidgetProxy.spatialReference;
 
-      // Create a graphics layer input line and the location marker graphics
+      // Create a graphics layer to contain the input line and the location marker graphics
       return this.mapWidgetProxy.createGraphicsLayerProxy().then(lang.hitch(this, function(graphicsLayerProxy){
 
-        // Make a reference to graphicsLayerProxy, then add the input line graphic and the marker graphic
         this.graphicsLayerProxy = graphicsLayerProxy;
         this.graphicsLayerProxy.addOrUpdateGraphics([this.inputLineGraphic, this.chartLocationGraphic]);
       }));
@@ -128,9 +121,9 @@ define([
     },
 
     drawLine: function(){
-      // Called when the "Draw Line" button is clicked
-      // Activate the drawing toolbar when the Draw Line button is clicked
-      // Show the waiting page until the drawing finishes
+      // Called when the Draw Line button is clicked
+      // Activate the drawing toolbar, and show the waiting page until the drawing finishes
+
       this.activateDrawingToolbar({geometryTypes: ["polyline"]}).then(lang.hitch(this, function(result){
         if(!result)
           console.log("Error activating drawing toolbar");
@@ -141,8 +134,8 @@ define([
       }));
     },
 
-    cancelSketch: function(){
-      // User clicks the Start Again button, reset the widget to the startup state
+    cancelDrawLine: function(){
+      // User clicks the Start Again button. Reset the widget to the startup state
 
       this.deactivateDrawingToolbar(this.mapWidgetProxy);
       this.showStartupPage();
@@ -152,11 +145,13 @@ define([
       // Capture the geometry of the input line,
       // then use it to calculate the elevation profile
 
+      this.deactivateDrawingToolbar(this.mapWidgetProxy);
+
       this.showCalculatingPage();
 
-      // Calculate the elevation profile
-      this.generateProfileGraph(inputLine).then(lang.hitch(this, function(elevationInfos){
+      this.calculateElevationInfos(inputLine).then(lang.hitch(this, function(elevationInfos){
 
+        // Calculate the elevation profile
         this.elevationInfos = elevationInfos;
 
         // Hide the loading icon and show the profile graph
@@ -173,6 +168,7 @@ define([
 
         // Show the elevation info on the profile graph
         this.showProfileGraph();
+
       }), lang.hitch(this, function(err){
         // Error occurred when calculating the elevation profile
         // Reset the widget to the startup state
@@ -180,18 +176,15 @@ define([
         alert(err);
         this.showStartupPage();
       }));
-
-      // TODO: investigate why the autoDeactivate property isn't working
-      this.deactivateDrawingToolbar(this.mapWidgetProxy);
     },
 
-    // TODO: investigate: after calling this the toolbar won't come up again
     drawingToolbarDeactivated: function(){
-      // User has canceled the drawing activity, reset the widget
+      // Issue: Once the drawing toolbar is deactivated, it cannot be activated again
+
       this.showStartupPage();
     },
 
-    generateProfileGraph: function (inputLine) {
+    calculateElevationInfos: function (inputLine) {
       // Calculate the elevation profile for the input line
 
       var deferred = new Deferred();
@@ -203,7 +196,8 @@ define([
       var profileLengthMeters = geodesicUtils.geodesicLengths([geoPolyline], this.getUnitConstant())[0];
       var samplingDistance = (profileLengthMeters / 198);
 
-      // Create input feature set for GP Task
+      // Create input feature set for the geoprocessing task
+
       var inputLineFeatures = new FeatureSet();
       inputLineFeatures.fields = [{
         "name": "OID",
@@ -269,8 +263,7 @@ define([
     },
 
     showProfileGraph: function(){
-      // Show the elevation data on a d3 line chart, and
-      // show the location info on the map
+      // Show the elevation data on a line chart
 
       if(!this.elevationInfos)
         return;
@@ -289,7 +282,7 @@ define([
         .attr("preserveAspectRatio", "none");
 
       // ********************************************************
-      // Map the x and y (m and z values respectively) domains into their respective ranges
+      // Map the x and y (for displaying m and z values respectively) domains into their ranges
       this.xRange.domain([
         d3.min(elevations, function(d){return d.m}),
         d3.max(elevations, function(d){return d.m})
@@ -325,7 +318,7 @@ define([
         .attr("transform", "translate(" + (this.margins.left) + ", " + this.yTranslate + ")")
         .call(yAxis);
 
-      // Add titles to the axes
+      // Add titles to the axes:
       // x axis
       this.profileGraph.append("text")
         .attr("class", "title")
@@ -351,13 +344,14 @@ define([
       this.profileGraph.append("path")
         .attr("class", "chart path")
         .attr("d", lineFunction(elevations))
-        .attr("transform", "translate(0, "+ this.yTranslate + ")");
+        .attr("transform", "translate(0, "+ this.yTranslate + ")"); //TODO: need the last line??
 
       // ********************************************************
-      // Create two area charts for coloring the SVG's background.
-      // One chart is above the profile line and one below
+      // Create two area charts to color the profile line's background,
+      // one above the line and one below
 
       // Area chart above the profile line
+      //TODO: review
       var areaAboveFunction = d3.svg.area()
         .x(lang.hitch(this, function(d){return this.xRange(d.m);}))
         .y0(0)
@@ -382,7 +376,7 @@ define([
         .attr("transform", "translate(0, " + this.yTranslate + ")");
 
       // ********************************************************
-      // When hovering on the chart, show a circle at the corresponding point on the profile line,
+      // When hovering on the line chart, show a circle at the corresponding point on the profile line,
       // and show the z value based on the closest m value
       var focus = this.profileGraph.append("g")
         .style("display", "none")
@@ -395,16 +389,16 @@ define([
         .attr("x", 8)
         .attr("y", "1.3em");
 
-      // Icon source: http://findicons.com/icon/423523/paper_mario?id=423632
-      focus.append("image")
-        .attr("xlink:href", "./paper_mario.ico")
-        .attr("width", 38)
-        .attr("height", 38)
-        .attr("x", 3)
-        .attr("y", "-2em");
+      //// Icon source: http://findicons.com/icon/423523/paper_mario?id=423632
+      //focus.append("image")
+      //  .attr("xlink:href", "./paper_mario.ico")
+      //  .attr("width", 38)
+      //  .attr("height", 38)
+      //  .attr("x", 3)
+      //  .attr("y", "-2em");
 
       // ********************************************************
-      // Display a vertical line on the x-axis of the graph when the mouse moves
+      // Display a vertical line on the chart when hovering the mouse over
       // Start by keeping the line off screen (i.e. set x1, x2 to -1)
       this.profileGraph.append("line")
         .attr("class", "yLine")
@@ -508,13 +502,13 @@ define([
       elevations.forEach(lang.hitch(this, function(elevation){
         // Convert m and z
         if(this.unit == "Kilometers"){
-          // If unit is metric: convert m (distance) from m to km, no need to convert z (elevation)
+          // If unit is metric: convert m (distance) from meter to km, no need to convert z (elevation)
           newM = elevation.m * 0.001;
           newZ = elevation.z;
         }
         else if(this.unit == "Miles")
         {
-          // If unit is US standard: convert m (distance) from m to mile, convert z (elevation) to feet
+          // If unit is US standard: convert m (distance) from meter to mile, convert z (elevation) to feet
           newM = elevation.m * 0.000621371;
           newZ = elevation.z * 3.28084;
         }
