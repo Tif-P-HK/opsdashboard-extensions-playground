@@ -68,7 +68,7 @@ define([
       // Set up the x and y ranges to fit the profile graph UI into the widget's window
       this.calculateRanges();
 
-      // When window resizes, redraw the profile graph based on the new dimension
+      // When window resizes, redraw the profile graph based on the new window dimension
       window.onresize = lang.hitch(this, function(){
         this.calculateRanges();
 
@@ -107,7 +107,7 @@ define([
       this.profileService = new Geoprocessor(profileServiceUrl);
       this.profileService.outSpatialReference = this.mapWidgetProxy.spatialReference;
 
-      // Create a graphics layer to contain the input line and the location marker graphics
+      // Create a graphics layer to contain the input line graphic and the location marker graphic
       return this.mapWidgetProxy.createGraphicsLayerProxy().then(lang.hitch(this, function(graphicsLayerProxy){
 
         this.graphicsLayerProxy = graphicsLayerProxy;
@@ -121,8 +121,7 @@ define([
     },
 
     drawLine: function(){
-      // Called when the Draw Line button is clicked
-      // Activate the drawing toolbar, and show the waiting page until the drawing finishes
+      // Activate the drawing toolbar, and show the waiting page until user finishes drawing
 
       this.activateDrawingToolbar({geometryTypes: ["polyline"]}).then(lang.hitch(this, function(result){
         if(!result)
@@ -135,7 +134,7 @@ define([
     },
 
     cancelDrawLine: function(){
-      // User clicks the Start Again button. Reset the widget to the startup state
+      // Reset the widget to the startup state
 
       this.deactivateDrawingToolbar(this.mapWidgetProxy);
       this.showStartupPage();
@@ -162,7 +161,7 @@ define([
           return;
         }
 
-        // Set the input line's geometry, then update its host graphics layer
+        // Update the input line's geometry and its host graphics layer
         this.inputLineGraphic.setGeometry(inputLine);
         this.graphicsLayerProxy.addOrUpdateGraphic(this.inputLineGraphic);
 
@@ -179,7 +178,7 @@ define([
     },
 
     drawingToolbarDeactivated: function(){
-      // Issue: Once the drawing toolbar is deactivated, it cannot be activated again
+      // TODO: investigate issue: Once the drawing toolbar is deactivated, it cannot be activated again (MWP: 103)
 
       this.showStartupPage();
     },
@@ -199,18 +198,11 @@ define([
       // Create input feature set for the geoprocessing task
 
       var inputLineFeatures = new FeatureSet();
-      inputLineFeatures.fields = [{
-        "name": "OID",
-        "type": "esriFieldTypeObjectID",
-        "alias": "OID"
-      }];
 
-      var inputProfileGraphic = new Graphic(inputLine, null, {OID: 1});
-      inputLineFeatures.features = [inputProfileGraphic];
+      inputLineFeatures.features = [new Graphic(inputLine)];
 
       this.profileService.execute({
         "InputLineFeatures": inputLineFeatures,
-        "ProfileIDField": "OID",
         "DEMResolution": "FINEST",
         "MaximumSampleDistance": samplingDistance,
         "MaximumSampleDistanceUnits": this.unit,
@@ -271,9 +263,9 @@ define([
       var elevations = this.elevationInfos.elevations;
       var locations = this.elevationInfos.locations;
 
-      // m and z values are in meters.
+      // m (distance) and z (elevation) values are in meter.
       // They need to be converted into user's selected unit
-      elevations = this.convertElevationInfoFromMeter(elevations);
+      elevations = this.convertElevationInfoToSelectedUnit(elevations);
 
       // set the preserveAspectRatio to none so that the SVG will scale
       // to fit entirely into the viewBox
@@ -306,13 +298,14 @@ define([
         .orient("left")
         .tickFormat(this.zValueFormat());
 
-      // Create the axes UI
+      this.yTranslate = this.margins.top - this.margins.bottom;
+
+      // Create the axes UI. Place it on the bottom margin
       this.profileGraph.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0, " + (this.height - this.margins.bottom) + ")")
         .call(xAxis);
 
-      this.yTranslate = this.margins.top - this.margins.bottom;
       this.profileGraph.append("g")
         .attr("class", "y axis")
         .attr("transform", "translate(" + (this.margins.left) + ", " + this.yTranslate + ")")
@@ -507,7 +500,7 @@ define([
         return Units.MILES;
     },
 
-    convertElevationInfoFromMeter: function(elevations){
+    convertElevationInfoToSelectedUnit: function(elevations){
       // For each item in elevationInfos, m (distance) and z (elevation) values are both in meters.
       // Convert them to their appropriate units
 
