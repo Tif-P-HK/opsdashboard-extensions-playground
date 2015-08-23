@@ -424,6 +424,8 @@ define([
 
           // _m: the value interpolated from this.xRange based on the current mouse position
           var _m = this.xRange.invert(d3.mouse(this.domNode)[0]);
+          if(_m < 0) // mouse is on the left side of the x-axis
+            return;
 
           // i: the index of _m when it's compared with all m vales in elevations
           var bisectM = d3.bisector(function(d) { return d.m; }).left;
@@ -433,6 +435,8 @@ define([
           // dElevations[1]: the elevation info whose m value is just greater than _m
           var dElevation0 = elevations[i - 1];
           var dElevation1 = elevations[i];
+          if(!dElevation0 || !dElevation1)  // i or --i is out of the range of elevations
+            return;
 
           // dElevation: equals dElevation1 if dElevation1.m is closer to _m, otherwise equals dElevation0
           var dElevation;
@@ -512,27 +516,23 @@ define([
     },
 
     convertElevationInfoFromMeter: function(elevations){
-      // For each item in elevationInfos, convert the m and z values to their appropriate unit using this.unit
-      // TODO: Is it possible to do something like LINQ does
-      var newM, newZ;
-      var newElevations = [];
-      elevations.forEach(lang.hitch(this, function(elevation){
-        // Convert m and z
+      // For each item in elevationInfos, m (distance) and z (elevation) values are both in meters.
+      // Convert them to their appropriate units
+
+      var newElevations = elevations.map(lang.hitch(this, function(elevation){
+        var newElevation = {};
         if(this.unit == "Kilometers"){
-          // If unit is metric: convert m (distance) from meter to km, no need to convert z (elevation)
-          newM = elevation.m * 0.001;
-          newZ = elevation.z;
+          // If unit is metric: convert distance to km, no need to convert elevation
+          newElevation.m = elevation.m * 0.001;
+          newElevation.z = elevation.z;
         }
         else if(this.unit == "Miles")
         {
-          // If unit is US standard: convert m (distance) from meter to mile, convert z (elevation) to feet
-          newM = elevation.m * 0.000621371;
-          newZ = elevation.z * 3.28084;
+          // If unit is US standard: convert distance to mile, convert elevation to feet
+          newElevation.m = elevation.m * 0.000621371;
+          newElevation.z = elevation.z * 3.28084;
         }
-        newElevations.push({
-          m: newM,
-          z: newZ
-        });
+        return newElevation;
       }));
       return newElevations;
     },
