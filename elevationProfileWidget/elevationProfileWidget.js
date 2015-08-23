@@ -59,7 +59,7 @@ define([
         15,
         new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color("#000000"), 1),
         new Color("#000000"));
-      this.chartLocationGraphic = new Graphic(null, chartLocationSymbol);
+      this.locationGraphic = new Graphic(null, chartLocationSymbol);
     },
 
     postCreate: function(){
@@ -111,7 +111,7 @@ define([
       return this.mapWidgetProxy.createGraphicsLayerProxy().then(lang.hitch(this, function(graphicsLayerProxy){
 
         this.graphicsLayerProxy = graphicsLayerProxy;
-        this.graphicsLayerProxy.addOrUpdateGraphics([this.inputLineGraphic, this.chartLocationGraphic]);
+        this.graphicsLayerProxy.addOrUpdateGraphics([this.inputLineGraphic, this.locationGraphic]);
       }));
     },
 
@@ -408,46 +408,63 @@ define([
         .attr("y2", this.height + this.margins.top - this.margins.bottom);
 
       // ********************************************************
-      // Update the "focus" and the vertical line when mouse moves
-      this.bisectM = d3.bisector(function(d) { return d.m; }).left;
+      // When mouse moves on the profile graph:
+      // - Update the x coordinate of a vertical line which overlays the graph to highlight the current mouse position
+      // - Update the mouse marker and elevation text that move along with the line
+      // - Update the locationGraphic on the map to highlight the corresponding map location
 
       this.profileGraph.append("rect")
         .attr("class", "overlay")
         .attr("width", this.width)
         .attr("height", this.height)
-        .on("mouseover", function() { focus.style("display", null); })
+        .on("mouseover", function() { focus.style("display", "inline"); })
         .on("mousemove", lang.hitch(this, function(){
 
-          // Show a circle and the text
-          // Calculate their positions based on the m value
-          var m0 = this.xRange.invert(d3.mouse(this.domNode)[0]),
-            i = this.bisectM(elevations, m0, 1),
-            dElevations0 = elevations[i - 1],
-            dElevations1 = elevations[i],
-            dElevations = m0 - dElevations0.m > dElevations1.m - m0 ? dElevations1 : dElevations0;
-          var focusText = this.zValueFormat()(dElevations.z) + " " + this.getZValueUnit();
-          focus.select("text").text(focusText);
-          focus.attr("transform", "translate(" + this.xRange(dElevations.m) + "," + (this.yTranslate + this.yRange(dElevations.z)) + ")");
+          // Translate the mouse position to the corresponding elevation and location info
 
-          // Update the location of the marker graphic
-          // Get the m value from the screen coordinates
-          // Then find the index of its corresponding elevation info
-          // Then use the index to look up for the location info
-          // Finally, use the location info to update the location of the locationGraphic
-          var m = this.xRange.invert(d3.mouse(this.domNode)[0]);
-          i = this.bisectM(elevations, m, 1);
-          var location = locations[i];
-          this.chartLocationGraphic.setGeometry(new Point(location.x, location.y, this.mapWidgetProxy.spatialReference));
-          this.graphicsLayerProxy.addOrUpdateGraphic(this.chartLocationGraphic);
+          // _m: the value interpolated from this.xRange based on the current mouse position
+          var _m = this.xRange.invert(d3.mouse(this.domNode)[0]);
+
+          // i: the index of _m when it's compared with all m vales in elevations
+          var bisectM = d3.bisector(function(d) { return d.m; }).left;
+          var i = bisectM(elevations, _m);
+
+          // dElevations[0]: the elevation info whose m value is just smaller than _m
+          // dElevations[1]: the elevation info whose m value is just greater than _m
+          var dElevation0 = elevations[i - 1];
+          var dElevation1 = elevations[i];
+
+          // dElevation: equals dElevation1 if dElevation1.m is closer to _m, otherwise equals dElevation0
+          var dElevation;
+          if(_m - dElevation0.m > dElevation1.m - _m){
+            dElevation = dElevation1;
+          }
+          else {
+            dElevation = dElevation0;
+            --i;
+          }
+          var m = dElevation.m;
+          var z = dElevation.z;
 
           // Slide the vertical line along the x axis as the mouse moves:
-          // Calculate the x-value (this.xRange(m)) of the line.
-          // If x < this.margins.left (i.e. on the left side of the y-axis),
-          // move the line offscreen (-1); Otherwise, slide the line as the mouse move
+          // If its x position < this.margins.left (i.e. th line is on the left side of the y-axis),
+          // move the line off-screen (-1); Otherwise, slide the line as the mouse move
           var x = this.xRange(m) < this.margins.left? -1 : this.xRange(m);
           this.profileGraph.select(".yLine")
             .attr("x1", x)
             .attr("x2", x);
+
+          // Show the mouse marker and elevation text next to the vertical line
+          var elevationText = this.zValueFormat()(z) + " " + this.getZValueUnit();
+          focus.select("text").text(elevationText);
+          focus.attr("transform", "translate(" + this.xRange(m) + "," + (this.yTranslate + this.yRange(z)) + ")");
+
+          // Update the geometry of the locationGraphic
+          // location: the location information at the given dElevation
+          var location = locations[i];
+          this.locationGraphic.setGeometry(new Point(location.x, location.y, this.mapWidgetProxy.spatialReference));
+          this.graphicsLayerProxy.addOrUpdateGraphic(this.locationGraphic);
+
         }));
     },
 
@@ -523,9 +540,9 @@ define([
     getZValueUnit: function(){
       // Return the y-axis label based on the distance unit
       if(this.unit === "Kilometers")
-        return "meters";
+        return "Meters";
       else if(this.unit === "Miles")
-        return "feet";
+        return "Feet";
     },
 
     zValueFormat: function(){
