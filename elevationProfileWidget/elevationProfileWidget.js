@@ -389,14 +389,6 @@ define([
         .attr("x", 8)
         .attr("y", "1.3em");
 
-      //// Icon source: http://findicons.com/icon/423523/paper_mario?id=423632
-      //focus.append("image")
-      //  .attr("xlink:href", "./paper_mario.ico")
-      //  .attr("width", 38)
-      //  .attr("height", 38)
-      //  .attr("x", 3)
-      //  .attr("y", "-2em");
-
       // ********************************************************
       // Display a vertical line on the chart when hovering the mouse over
       // Start by keeping the line off screen (i.e. set x1, x2 to -1)
