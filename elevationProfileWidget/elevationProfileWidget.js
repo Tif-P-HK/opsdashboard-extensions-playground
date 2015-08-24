@@ -47,13 +47,13 @@ define([
       this.unit = "Miles";
 
       // Margins for the profile graph SVG
-      this.margins = {top: 20, right: 20, bottom: 60, left: 60};
+      this.margins = {top: 15, right:40, bottom: 80, left: 60};
 
       // Input line to be shown on the map
       var outlineSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color("#192a64"), 3);
       this.inputLineGraphic = new Graphic(null, outlineSymbol);
 
-      // A cross symbol that marks the corresponding map location when user hovers on the profile graph
+      // A symbol that marks the corresponding map location when user hovers on the profile graph
       var chartLocationSymbol = new SimpleMarkerSymbol(
         SimpleMarkerSymbol.STYLE_X,
         15,
@@ -270,7 +270,7 @@ define([
       this.profileGraph = d3.select("#profileGraph");
 
       // ********************************************************
-      // Map the x and y (for displaying m and z values respectively) domains into their ranges
+      // Map the x and y domains (associated with m and z values respectively) into their ranges
       this.xRange.domain([
         d3.min(elevations, function(d){return d.m}),
         d3.max(elevations, function(d){return d.m})
@@ -285,12 +285,11 @@ define([
       // Set up the axes
       var xAxis = d3.svg.axis()
         .scale(this.xRange)
-        .tickSize(1)
         .tickFormat(this.mValueFormat());
 
       var yAxis = d3.svg.axis()
+        .tickSize(2)
         .scale(this.yRange)
-        .tickSize(1)
         .orient("left")
         .tickFormat(this.zValueFormat());
 
@@ -300,10 +299,9 @@ define([
         .attr("transform", "translate(0, " + (this.height - this.margins.bottom) + ")")
         .call(xAxis);
 
-      // y axis along the left margin
       this.profileGraph.append("g")
         .attr("class", "axis")
-        .attr("transform", "translate(" + this.margins.left + ", 0)")
+        .attr("transform", "translate(" + (this.margins.left - 1) + ", 0)")
         .call(yAxis);
 
       // Add titles to the axes:
@@ -312,7 +310,7 @@ define([
         .attr("class", "title")
         .attr("text-anchor", "middle")
         .attr("x", this.width/2)
-        .attr("y", this.height - 20)
+        .attr("y", this.height - 45)
         .text("Distance in " + this.unit);
 
       // y axis
@@ -361,7 +359,7 @@ define([
         .attr("d", areaBelowFunction);
 
       // ********************************************************
-      // When hovering on the line chart, show a circle at the corresponding point on the profile line,
+      // When hovering on the line chart, show a circle marker at the corresponding point on the profile line,
       // and show the z value based on the closest m value
       var focus = this.profileGraph.append("g")
         .style("display", "none")
@@ -388,8 +386,8 @@ define([
 
       // ********************************************************
       // When mouse moves on the profile graph:
-      // - Update the x coordinate of a vertical marker line which overlays the graph to highlight the current mouse position
-      // - Update the mouse marker and elevation text that move along with the line
+      // - Update the x coordinate of a vertical marker line
+      // - Update the mouse marker and elevation text that move with the line
       // - Update the locationGraphic on the map to highlight the corresponding map location
 
       this.profileGraph.append("rect")
@@ -401,7 +399,7 @@ define([
 
           // Translate the mouse position to the corresponding elevation and location info
 
-          // _m: the value interpolated from this.xRange based on the current mouse position
+          // _m: the value mapped from this.xRange based on the current mouse position
           var _m = this.xRange.invert(d3.mouse(this.domNode)[0]);
           if(_m < 0) // mouse is on the left side of the x-axis
             return;
@@ -414,7 +412,7 @@ define([
           // dElevations[1]: the elevation info whose m value is just greater than _m
           var dElevation0 = elevations[i - 1];
           var dElevation1 = elevations[i];
-          if(!dElevation0 || !dElevation1)  // i or --i is out of the range of elevations
+          if(!dElevation0 || !dElevation1)  // return if i or --i is out of the range of elevations
             return;
 
           // dElevation: equals dElevation1 if dElevation1.m is closer to _m, otherwise equals dElevation0
@@ -431,7 +429,7 @@ define([
 
           // Slide the vertical line along the x axis as the mouse moves:
           // If its x position < this.margins.left (i.e. th line is on the left side of the y-axis),
-          // move the line off-screen (-1); Otherwise, slide the line as the mouse move
+          // move the line off-screen (-1); Otherwise, slide the line as the mouse moves
           var x = this.xRange(m) < this.margins.left? -1 : this.xRange(m);
           this.profileGraph.select("#markerLine")
             .attr("x1", x)
