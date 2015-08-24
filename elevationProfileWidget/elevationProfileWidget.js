@@ -47,7 +47,7 @@ define([
       this.unit = "Miles";
 
       // Margins for the profile graph SVG
-      this.margins = {top: 20, right: 20, bottom: 40, left: 60};
+      this.margins = {top: 20, right: 20, bottom: 60, left: 60};
 
       // Input line to be shown on the map
       var outlineSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color("#192a64"), 3);
@@ -87,7 +87,7 @@ define([
         .range([this.margins.left, this.width - this.margins.right]);
 
       this.yRange = d3.scale.linear()
-        .range([this.height - this.margins.top, this.margins.bottom]);
+        .range([this.height - this.margins.bottom, this.margins.top]);
     },
 
     hostReady: function(){
@@ -267,11 +267,7 @@ define([
       // They need to be converted into user's selected unit
       elevations = this.convertElevationInfoToSelectedUnit(elevations);
 
-      // set the preserveAspectRatio to none so that the SVG will scale
-      // to fit entirely into the viewBox
-      this.profileGraph = d3.select("#profileGraph")
-        .attr("viewBox", "0 0 " + this.width + " " + this.height)
-        .attr("preserveAspectRatio", "none");
+      this.profileGraph = d3.select("#profileGraph");
 
       // ********************************************************
       // Map the x and y (for displaying m and z values respectively) domains into their ranges
@@ -298,17 +294,16 @@ define([
         .orient("left")
         .tickFormat(this.zValueFormat());
 
-      this.yTranslate = this.margins.top - this.margins.bottom;
-
-      // Create the axes UI. Place it on the bottom margin
+      // Create the axes UI
       this.profileGraph.append("g")
-        .attr("class", "x axis")
+        .attr("class", "axis")
         .attr("transform", "translate(0, " + (this.height - this.margins.bottom) + ")")
         .call(xAxis);
 
+      // y axis along the left margin
       this.profileGraph.append("g")
-        .attr("class", "y axis")
-        .attr("transform", "translate(" + (this.margins.left) + ", " + this.yTranslate + ")")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + this.margins.left + ", 0)")
         .call(yAxis);
 
       // Add titles to the axes:
@@ -317,14 +312,14 @@ define([
         .attr("class", "title")
         .attr("text-anchor", "middle")
         .attr("x", this.width/2)
-        .attr("y", this.height - 3)
+        .attr("y", this.height - 20)
         .text("Distance in " + this.unit);
 
       // y axis
       this.profileGraph.append("text")
         .attr("class", "title")
         .attr("text-anchor", "middle")
-        .attr("transform", "translate("+ (this.margins.left/3 - 2) +","+(this.height/2)+ ")rotate(-90)")
+        .attr("transform", "translate("+ (this.margins.left/3) +","+(this.height/2)+ ")rotate(-90)")
         .text("Elevation in " + this.getZValueUnit());
 
       // ********************************************************
@@ -335,38 +330,35 @@ define([
         .interpolate("linear");
 
       this.profileGraph.append("path")
-        .attr("class", "chart path")
-        .attr("d", lineFunction(elevations))
-        .attr("transform", "translate(0, "+ this.yTranslate + ")"); //TODO: need the last line??
+        .attr("class", "path")
+        .attr("id", "profileLine")
+        .attr("d", lineFunction(elevations));
 
       // ********************************************************
-      // Create two area charts to color the profile line's background,
-      // one above the line and one below
+      // Create two area charts to color the profile graph's background,
+      // one above the profile line and one below
 
       // Area chart above the profile line
-      //TODO: review
       var areaAboveFunction = d3.svg.area()
         .x(lang.hitch(this, function(d){return this.xRange(d.m);}))
-        .y0(0)
-        .y1(lang.hitch(this, function(d){return this.yRange(d.z);}));
+        .y0(lang.hitch(this, function(d){return this.yRange(d.z);}))
+        .y1(this.margins.top);
 
       this.profileGraph.append("path")
         .datum(elevations)
-        .attr("class", "areaAbove")
-        .attr("d", areaAboveFunction)
-        .attr("transform", "translate(0, " + this.yTranslate + ")");
+        .attr("class", "area above")
+        .attr("d", areaAboveFunction);
 
       // Area chart below the profile line
       var areaBelowFunction = d3.svg.area()
         .x(lang.hitch(this, function(d){return this.xRange(d.m);}))
-        .y0(lang.hitch(this, function(d){return this.yRange(d.z);}))
-        .y1(this.height - this.margins.bottom - this.yTranslate );
+        .y0(this.height - this.margins.bottom)
+        .y1(lang.hitch(this, function(d){return this.yRange(d.z);}));
 
       this.profileGraph.append("path")
         .datum(elevations)
-        .attr("class", "areaBelow")
-        .attr("d", areaBelowFunction)
-        .attr("transform", "translate(0, " + this.yTranslate + ")");
+        .attr("class", "area below")
+        .attr("d", areaBelowFunction);
 
       // ********************************************************
       // When hovering on the line chart, show a circle at the corresponding point on the profile line,
@@ -376,25 +368,27 @@ define([
         .attr("class", "focus");
 
       focus.append("circle")
-        .attr("r", 4.5);
+        .attr("r", 4.5)
+        .attr("x", -5)
+        .attr("y", -5);
 
       focus.append("text")
-        .attr("x", 8)
-        .attr("y", "1.3em");
+        .attr("x", "0.5em")
+        .attr("y", "-0.6em");
 
       // ********************************************************
-      // Display a vertical line on the chart when hovering the mouse over
-      // Start by keeping the line off screen (i.e. set x1, x2 to -1)
+      // Display a vertical marker line on the chart when hovering the mouse over
+      // Start by keeping the line off screen
       this.profileGraph.append("line")
-        .attr("class", "yLine")
+        .attr("id", "markerLine")
         .attr("x1", -1)
         .attr("x2", -1)
-        .attr("y1", this.margins.top)
-        .attr("y2", this.height + this.margins.top - this.margins.bottom);
+        .attr("y1", 0 + this.margins.top)
+        .attr("y2", this.height - this.margins.bottom);
 
       // ********************************************************
       // When mouse moves on the profile graph:
-      // - Update the x coordinate of a vertical line which overlays the graph to highlight the current mouse position
+      // - Update the x coordinate of a vertical marker line which overlays the graph to highlight the current mouse position
       // - Update the mouse marker and elevation text that move along with the line
       // - Update the locationGraphic on the map to highlight the corresponding map location
 
@@ -439,14 +433,14 @@ define([
           // If its x position < this.margins.left (i.e. th line is on the left side of the y-axis),
           // move the line off-screen (-1); Otherwise, slide the line as the mouse move
           var x = this.xRange(m) < this.margins.left? -1 : this.xRange(m);
-          this.profileGraph.select(".yLine")
+          this.profileGraph.select("#markerLine")
             .attr("x1", x)
             .attr("x2", x);
 
           // Show the mouse marker and elevation text next to the vertical line
           var elevationText = this.zValueFormat()(z) + " " + this.getZValueUnit();
           focus.select("text").text(elevationText);
-          focus.attr("transform", "translate(" + this.xRange(m) + "," + (this.yTranslate + this.yRange(z)) + ")");
+          focus.attr("transform", "translate(" + this.xRange(m) + "," + this.yRange(z) + ")");
 
           // Update the geometry of the locationGraphic
           // location: the location information at the given dElevation
