@@ -1,0 +1,66 @@
+<div>
+  <!-- header section for showing the location information -->
+  <div id="locationDiv">
+    <h2 data-dojo-attach-point="fullLocationName"></h2>
+    <p data-dojo-attach-point="observationTime"></p>
+  </div>
+
+  <!-- details page for showing the weather details, weather map and warning message for missing developer key -->
+  <div id="weatherDetailsDiv">
+    <div id="detailsPage" data-dojo-attach-point="detailsPage" class="show">
+      <div id="weatherFigureDiv">
+        <figure id="weatherFigure">
+          <img data-dojo-attach-point="weatherImg"/>
+          <figcaption data-dojo-attach-point="weatherImgCaption"></figcaption>
+        </figure>
+      </div>
+      <div id="infoDiv">
+        <table id="infoTable">
+          <tr>
+            <td data-dojo-attach-point="weather" colspan="2">Clear</td>
+          </tr>
+          <tr>
+            <td>UV</td>
+            <td data-dojo-attach-point="uv"></td>
+          </tr>
+          <tr>
+            <td>Wind</td>
+            <td data-dojo-attach-point="windInfo"></td>
+          </tr>
+          <tr>
+            <td>Humidity</td>
+            <td data-dojo-attach-point="relativeHumidity"></td>
+          </tr>
+          <tr>
+            <td>Precip (24hrs)</td>
+            <td data-dojo-attach-point="precipitationToday"></td>
+          </tr>
+          <tr>
+            <td>Visibility</td>
+            <td data-dojo-attach-point="visibility"></td>
+          </tr>
+          <tr>
+            <td>Dew Point</td>
+            <td data-dojo-attach-point="dewPoint"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div id="mapPage" data-dojo-attach-point="mapPage" class="hide">
+      <img data-dojo-attach-point="visibleSatelliteImage"/>
+    </div>
+    <div id="warningPage" data-dojo-attach-point="warningPage" class="hide">
+      <h3 data-dojo-attach-point="warningMsg"></h3>
+    </div>
+  </div>
+
+  <!-- Controls for switching between details page and map page-->
+  <div id="navigationDiv" data-dojo-attach-point="navigationDiv">
+    <img src="detailsPageBtn.png" id="detailsPageBtn" class="button active" alt="Details"
+         data-dojo-attach-point="detailsPageBtn"
+         data-dojo-attach-event="onclick:showDetailsPage"/>
+    <img src="mapPageBtn.png" id="mapPageBtn" class="button" alt="Map"
+         data-dojo-attach-point="mapPageBtn"
+         data-dojo-attach-event="onclick:showMapPage"/>
+  </div>
+</div>

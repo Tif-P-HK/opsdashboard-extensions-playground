@@ -1,0 +1,15 @@
+{
+  "type": "Widget",
+  "title": "Weather Widget",
+  "description": "Weather info of current map extent",
+  "thumbnailPath": "weather.png",
+  "useDataFromView": false,
+  "runtime": {
+    "path": "weather.html"
+  },
+  "configuration": {
+    "requireMapWidget": true,
+    "requireDataSource": false
+  },
+  "credits": ""
+}

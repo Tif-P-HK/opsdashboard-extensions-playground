@@ -1,0 +1,152 @@
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+body {
+  font: 13px sans-serif;
+  font-family: "Segoe UI";
+}
+
+/* div of the entire widget extension*/
+#resultDiv{
+  height: 100%;
+  margin: 5px;
+}
+
+/*
+*
+* styles of the location UI
+*
+*/
+#locationDiv{
+  height: 60px;
+  border-bottom: 1px solid #cccccc;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+#locationDiv h2 {
+  margin: 0 auto;
+  font: 18px "Segoe UI";
+}
+
+#locationDiv p{
+  margin: 3px 5px;
+  color: #585858;
+}
+
+/*
+*
+* styles of the weather UI
+*
+*/
+
+#weatherDetailsDiv > div{
+  position: absolute;
+  width: 100%;
+  top: 75px;
+  bottom: 55px;
+  overflow: hidden;
+}
+
+/*
+* details page
+*/
+/* styles of the weather image UI*/
+#weatherFigureDiv{
+  height: 100%;
+  width: 35%;
+  float: left;
+  position: relative;
+}
+
+#weatherFigure{
+  width: 90%;
+  margin: 20% 0 0 10%;
+}
+
+#weatherFigure img{
+  height: 55px;
+  width: 55px;
+}
+
+#weatherFigure figcaption{
+  padding: 0;
+  margin:0;
+  font-size: 14px;
+}
+
+/* styles of the detail weather information UI*/
+#infoDiv{
+  width: 65%;
+  margin-left: 38%;
+}
+
+#infoTable tr:first-of-type{
+  font-weight: bold;
+}
+
+#infoTable tr td:nth-child(even){
+  padding: 2px 5px;
+  font-weight: bold;
+}
+
+/*
+* map page
+*/
+
+#mapPage img{
+  width: 80%;
+  padding-bottom: 80%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/*
+* warning page
+*/
+#warningPage{
+  text-align: center;
+  margin-top: 50px;
+}
+
+/*
+*
+* styles of the navigation UI
+*
+*/
+#navigationDiv{
+  position: absolute;
+  height: 50px;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid #cccccc;
+}
+
+.button{
+  border: 1px solid #cccccc;
+  margin: -1px 2px;
+}
+
+.active{
+  border-top: 1px solid #ffffff;
+}
+
+/*
+*
+* generic styles
+*
+*/
+.show{
+  visibility: visible;
+}
+
+.hide{
+  visibility: hidden;
+}
