@@ -16,8 +16,13 @@ define([
     templateString: templateString,
 
     //TODO:
-    // 1. Handle map widget removal
-    // 2. Add loading page
+    // - Add loading page
+    // - Revisit CSS (using display: table)
+    // - Revisit satellite image display
+    // - Move images to img folder
+    // - Handle map widget removal
+    // - Handle map extent changed
+
 
     // ***************************************************************
     // NOTE: To run this sample, you must sign up for and enter here a
@@ -39,7 +44,7 @@ define([
       //mapWidget.subscribeToMapEvents();
 
       if(!_developerKey){
-        this.showWarning("Enter a Weather Underground developer key to run this sample");
+        this.showWarningPage("Enter a Weather Underground developer key to run this sample");
         return;
       }
 
@@ -57,6 +62,11 @@ define([
       });
     },
 
+    mapExtentChanged: function(){
+      alert("extent changed");
+    },
+
+
     getWeatherInformation: function(geoMapCenter){
       // Append location information to the weather service URL
       this.weatherServiceUrl += geoMapCenter.getLatitude() + "," + geoMapCenter.getLongitude() + ".json";
@@ -72,7 +82,7 @@ define([
         console.log("request succeeded, response: " + response);
         this.displayResult(response);
       }.bind(this), function(error){
-        this.showWarning("Error getting weather information");
+        this.showWarningPage("Error getting weather information");
         console.log("Error: ", error.message);
       })
     },
@@ -104,31 +114,35 @@ define([
 
       // Display the satellite image result on Map page
       this.visibleSatelliteImage.src = satellite.image_url_vis;
-    },
 
-    mapExtentChanged: function(){
-      alert("extent changed");
+      // Update the UI
+      this.showDetailsPage();
     },
 
     showDetailsPage: function(){
-      // Shows the weather details page when the Details button is clicked
+      // Show the weather details page when the Details button is clicked
 
+      domClass.add(this.loadingPage, "hide");
       domClass.remove(this.detailsPage, "hide");
       domClass.add(this.mapPage, "hide");
       domClass.add(this.warningPage, "hide");
     },
 
     showMapPage: function(){
-      // Shows the map page when the Map button is clicked
+      // Show the map page when the Map button is clicked
 
+      domClass.add(this.loadingPage, "hide");
       domClass.add(this.detailsPage, "hide");
       domClass.remove(this.mapPage, "hide");
       domClass.add(this.warningPage, "hide");
     },
 
-    showWarning: function(message){
+    showWarningPage: function(message){
+      // Show the warning page
+
       this.warningMsg.innerHTML = message;
 
+      domClass.add(this.loadingPage, "hide");
       domClass.add(this.detailsPage, "hide");
       domClass.add(this.mapPage, "hide");
       domClass.remove(this.warningPage, "hide");

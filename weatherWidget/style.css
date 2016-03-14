@@ -20,6 +20,31 @@ body {
 
 /*
 *
+* styles of the loading page
+*
+*/
+.table {
+  display: table;
+  height: 100%;
+  width: 100%;
+}
+
+.cell {
+  display: table-cell;
+}
+
+.middle {
+  vertical-align: middle;
+}
+
+.loading-big {
+  background: url("./loading-big.gif") no-repeat center;
+  height: 65px;
+  width: 65px;
+}
+
+/*
+*
 * styles of the location UI
 *
 */

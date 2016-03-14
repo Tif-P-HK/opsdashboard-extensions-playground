@@ -1,4 +1,9 @@
 <div>
+<!-- Show the loading page while waiting for result -->
+  <div data-dojo-attach-point="loadingPage" class="table show">
+    <div class="cell middle loading-big"></div>
+  </div>
+
   <!-- header section for showing the location information -->
   <div id="locationDiv">
     <h2 data-dojo-attach-point="fullLocationName"></h2>
@@ -7,7 +12,7 @@
 
   <!-- details page for showing the weather details, weather map and warning message for missing developer key -->
   <div id="weatherDetailsDiv">
-    <div id="detailsPage" data-dojo-attach-point="detailsPage" class="show">
+    <div id="detailsPage" data-dojo-attach-point="detailsPage" class="hide">
       <div id="weatherFigureDiv">
         <figure id="weatherFigure">
           <img data-dojo-attach-point="weatherImg"/>
