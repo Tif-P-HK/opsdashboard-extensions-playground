@@ -58,6 +58,7 @@ define([
         // Get the weather information at the map center
         this.getWeatherInformation(geoMapCenter);
       }.bind(this), function(error){
+        this.showWarningPage("Error getting map extent");
         console.log("Error: ", error.message);
       });
     },
@@ -65,7 +66,6 @@ define([
     mapExtentChanged: function(){
       alert("extent changed");
     },
-
 
     getWeatherInformation: function(geoMapCenter){
       // Append location information to the weather service URL
@@ -116,38 +116,45 @@ define([
       this.visibleSatelliteImage.src = satellite.image_url_vis;
 
       // Update the UI
-      this.showDetailsPage();
+      this.showResultsPage();
     },
 
-    showDetailsPage: function(){
-      // Show the weather details page when the Details button is clicked
-
-      domClass.add(this.loadingPage, "hide");
-      domClass.remove(this.detailsPage, "hide");
-      domClass.add(this.mapPage, "hide");
+    showLoadingPage: function(){
+      domClass.remove(this.loadingPage, "hide");
+      domClass.add(this.resultsPage, "hide");
       domClass.add(this.warningPage, "hide");
     },
 
-    showMapPage: function(){
-      // Show the map page when the Map button is clicked
-
+    showResultsPage: function(){
       domClass.add(this.loadingPage, "hide");
-      domClass.add(this.detailsPage, "hide");
-      domClass.remove(this.mapPage, "hide");
+      domClass.remove(this.resultsPage, "hide");
       domClass.add(this.warningPage, "hide");
     },
 
     showWarningPage: function(message){
-      // Show the warning page
-
       this.warningMsg.innerHTML = message;
 
       domClass.add(this.loadingPage, "hide");
-      domClass.add(this.detailsPage, "hide");
-      domClass.add(this.mapPage, "hide");
+      domClass.add(this.resultsPage, "hide");
       domClass.remove(this.warningPage, "hide");
-      domClass.add(this.navigationDiv, "hide");
+    },
+
+    showDetailsPage: function(){
+      domClass.remove(this.detailsPage, "hide");
+      domClass.add(this.mapPage, "hide");
+
+      domClass.add(this.detailsPageBtn, "active");
+      domClass.remove(this.mapPageBtn, "active");
+    },
+
+    showMapPage: function(){
+      domClass.add(this.detailsPage, "hide");
+      domClass.remove(this.mapPage, "hide");
+
+      domClass.remove(this.detailsPageBtn, "active");
+      domClass.add(this.mapPageBtn, "active");
     }
+
   });
 });
 

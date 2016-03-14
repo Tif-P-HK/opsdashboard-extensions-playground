@@ -5,17 +5,25 @@ html, body {
   padding: 0;
   overflow: hidden;
   background-color: #ffffff;
-}
-
-body {
   font: 13px sans-serif;
   font-family: "Segoe UI";
 }
 
-/* div of the entire widget extension*/
+/*body {*/
+/*}*/
+
+/* div of the widget container*/
 #resultDiv{
   height: 100%;
+  width: 100%;
   margin: 5px;
+  position: relative;
+}
+
+#resultDiv > div{
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 /*
@@ -23,24 +31,24 @@ body {
 * styles of the loading page
 *
 */
-.table {
-  display: table;
-  height: 100%;
-  width: 100%;
-}
-
-.cell {
-  display: table-cell;
-}
-
-.middle {
-  vertical-align: middle;
-}
-
 .loading-big {
-  background: url("./loading-big.gif") no-repeat center;
   height: 65px;
   width: 65px;
+  background: url("./loading-big.gif") no-repeat center;
+}
+
+/*
+*
+* styles of the results page
+*
+*/
+#resultsPage {
+  position: relative;
+}
+
+#resultsPage > div {
+  width: 100%;
+  position: absolute;
 }
 
 /*
@@ -49,9 +57,10 @@ body {
 *
 */
 #locationDiv{
+  top: 0;
   height: 60px;
   border-bottom: 1px solid #cccccc;
-  margin-bottom: 10px;
+  /*margin-bottom: 10px;*/
   overflow: hidden;
 }
 
@@ -70,13 +79,22 @@ body {
 * styles of the weather UI
 *
 */
-
-#weatherDetailsDiv > div{
-  position: absolute;
-  width: 100%;
+#weatherDetailsDiv {
   top: 75px;
   bottom: 55px;
   overflow: hidden;
+}
+
+#weatherDetailsContainer {
+  margin: 10px;
+  position: relative;
+}
+
+#weatherDetailsContainer > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
 }
 
 /*
@@ -84,15 +102,9 @@ body {
 */
 /* styles of the weather image UI*/
 #weatherFigureDiv{
-  height: 100%;
+  /*height: 100%;*/
   width: 35%;
-  float: left;
-  position: relative;
-}
-
-#weatherFigure{
-  width: 90%;
-  margin: 20% 0 0 10%;
+  vertical-align: middle;
 }
 
 #weatherFigure img{
@@ -104,12 +116,6 @@ body {
   padding: 0;
   margin:0;
   font-size: 14px;
-}
-
-/* styles of the detail weather information UI*/
-#infoDiv{
-  width: 65%;
-  margin-left: 38%;
 }
 
 #infoTable tr:first-of-type{
@@ -124,13 +130,14 @@ body {
 /*
 * map page
 */
+#mapPage {
+  text-align: center;
+}
 
 #mapPage img{
+  vertical-align: middle;
   width: 80%;
   padding-bottom: 80%;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 /*
@@ -147,10 +154,7 @@ body {
 *
 */
 #navigationDiv{
-  position: absolute;
-  height: 50px;
-  bottom: 0;
-  width: 100%;
+  bottom: 7px;
   border-top: 1px solid #cccccc;
 }
 
@@ -168,6 +172,27 @@ body {
 * generic styles
 *
 */
+
+.table {
+  display: table;
+  width: 100%;
+  height: 100%;
+  /*top: 0;*/
+  /*left: 0;*/
+}
+
+.row {
+  display: table-row;
+}
+
+.cell {
+  display: table-cell;
+}
+
+.middle {
+  vertical-align: middle;
+}
+
 .show{
   visibility: visible;
 }
