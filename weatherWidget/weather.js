@@ -16,13 +16,9 @@ define([
     templateString: templateString,
 
     //TODO:
-    // - Add loading page
-    // - Revisit CSS (using display: table)
-    // - Revisit satellite image display
-    // - Move images to img folder
     // - Handle map widget removal
     // - Handle map extent changed
-
+    // - subscribe and unsubscribe to map event
 
     // ***************************************************************
     // NOTE: To run this sample, you must sign up for and enter here a
@@ -35,20 +31,26 @@ define([
       domain = "gist.githubusercontent.com";
       esriConfig.defaults.io.corsEnabledServers.push(domain);
 
-      // TODO: replace dev key
       var _developerKey = "yourDeveloperKey"; // ENTER YOUR WEATHER UNDERGROUND DEVELOPER API KEY HERE
       this.weatherServiceUrl = "http://" + domain + "/api/" + _developerKey + "/conditions/satellite/webcams/q/";
 
       // Listen to map extent changed by subscribing to map events
-      //var mapWidget = this.mapWidgetProxy;
-      //mapWidget.subscribeToMapEvents();
+      var mapWidget = this.mapWidgetProxy;
+
+      //this.getMapWidgetProxy("e6418c05-9410-45da-8008-1ec20cf35017").then(function(_mapWidget){
+      //  mapWidget = _mapWidget;
+      //}.bind(this), function(err){
+      //  console.log("error in getMapWidgetProxy");
+      //});
+
+      mapWidget.subscribeToMapEvents();
 
       if(!_developerKey){
         this.showWarningPage("Enter a Weather Underground developer key to run this sample");
         return;
       }
 
-      this.mapWidgetProxy.getMapExtent().then(function(extent){
+      mapWidget.getMapExtent().then(function(extent){
 
         // If spatial reference is Web Mercator, convert point to Geographic, otherwise assume Geographic
         var mapCenter = extent.getCenter();
@@ -80,7 +82,15 @@ define([
         url: this.weatherServiceUrl
       }).then(function(response){
         console.log("request succeeded, response: " + response);
+
+        if(!response){
+          this.showWarningPage("Error getting weather information");
+          console.log("falsy response received");
+          return;
+        }
+
         this.displayResult(response);
+
       }.bind(this), function(error){
         this.showWarningPage("Error getting weather information");
         console.log("Error: ", error.message);
