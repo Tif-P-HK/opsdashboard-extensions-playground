@@ -27,11 +27,12 @@ define([
   "esri/symbols/SimpleFillSymbol",
   "esri/symbols/PictureMarkerSymbol",
   "esri/graphic",
+  "esri/geometry/Extent",
   "esri/geometry/webMercatorUtils",
   "esri/geometry/Point",
   "esri/geometry/Circle",
   "dojo/text!./SocialMediaMapToolTemplate.html"
-], function (declare, lang, ioQuery, domClass, _WidgetBase, _TemplatedMixin, esriConfig, esriRequest, MapToolProxy, Color, SimpleLineSymbol, SimpleFillSymbol, PictureMarkerSymbol, Graphic, webMercatorUtils, Point, Circle, templateString) {
+], function (declare, lang, ioQuery, domClass, _WidgetBase, _TemplatedMixin, esriConfig, esriRequest, MapToolProxy, Color, SimpleLineSymbol, SimpleFillSymbol, PictureMarkerSymbol, Graphic, Extent, webMercatorUtils, Point, Circle, templateString) {
 
   return declare("SocialMediaMapTool", [_WidgetBase, _TemplatedMixin, MapToolProxy], {
 
@@ -57,6 +58,8 @@ define([
       // Create the social media feeds graphics
       this.flickrSymbol = new PictureMarkerSymbol(iconPath + "imgs/flickrIcon.png", 34, 46);
       this.flickrSymbol.yoffset = 10;
+      this.selectedFlickrSymbol = new PictureMarkerSymbol(iconPath + "imgs/selectedFlickrIcon.gif", 44, 60);
+      this.selectedFlickrSymbol.yoffset = 10;
       this.flickrGraphics = [];
 
       // Set up the query for the Flickr photo search request
@@ -67,6 +70,7 @@ define([
       // todo: add date to query
 
       // todo: radius and unit should come from config
+      // todo: is noJsonCallback needed?
       this.query = {
         method: "flickr.photos.search",
         api_key: "fe64b1e625e18c0cfd70165541dc786f",
@@ -112,7 +116,6 @@ define([
             // Activate the drawing activity when the graphics layers are ready
             this.activateMapDrawing({geometryType: "point"});
           }));
-
         }));
       }));
     },
@@ -211,7 +214,8 @@ define([
               id: ++photoId,
               title: photo.title,
               url: photo.url_s,
-              description: photo.description._content
+              description: photo.description._content,
+              location: photoLocation
             })
           }
         }.bind(this));
@@ -254,11 +258,12 @@ define([
       domClass.remove(this.resultsPage, "hide");
 
       // Show the first photo on the map tool's UI
+      this.currentPhotoIndex = 0;
       this.showPhoto();
     },
 
     showPhoto: function () {
-      // Show the photo and the navigation UI on the map toolbar
+      // Show the photo on the map toolbar and zoom to the photo
 
       this.photoCount.innerHTML = this.photosInfo.length;
 
@@ -267,6 +272,23 @@ define([
       this.photoTitle.innerHTML = photo.title;
       this.photoUrl.src = photo.url;
       this.photoDescription.innerHTML = photo.description;
+
+      // Zoom to the photo
+      //var photoLocationWM = photo.location;
+      //if (!photoLocationWM.spatialReference.isWebMercator())
+      //  photoLocationWM = webMercatorUtils.geographicToWebMercator(photoLocationWM);
+      //var threshold = 150;
+      //this.mapWidgetProxy.setExtent(new Extent({
+      //  "xmin": photoLocationWM.x - threshold,
+      //  "ymin": photoLocationWM.y - threshold,
+      //  "xmax": photoLocationWM.x + threshold,
+      //  "ymax": photoLocationWM.y + threshold,
+      //  "spatialReference": {"wkid": photoLocationWM.spatialReference.wkid}
+      //}));
+
+      var graphic = this.flickrGraphics[this.currentPhotoIndex];
+      graphic.setSymbol(this.selectedFlickrSymbol);
+      this.mediaFeedsGraphicsLayerProxy.addOrUpdateGraphic(graphic);
 
     },
 
