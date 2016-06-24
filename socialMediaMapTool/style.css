@@ -1,0 +1,73 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  font-family: Arial;
+  overflow: hidden;
+}
+
+.table {
+  /*display: table;*/
+  overflow: hidden;
+}
+
+/*.buttonContainer {*/
+  /*width: 20px;*/
+/*}*/
+
+/*
+* styles of the photo navigation controls
+*/
+
+.paginationDiv * {
+  vertical-align: middle;
+}
+
+.paginationDiv img {
+  padding: 10px 6px;
+}
+
+.paginationDiv img:hover {
+  background: #e2f1fb;
+  cursor: pointer;
+}
+
+/*
+* styles of the photos
+*/
+figure {
+  margin: 5px;
+  width: 260px;
+  text-align: justify;
+}
+
+figure img {
+  width: 240px;
+  height: 157px;
+}
+
+/*
+* generic styles
+*/
+
+h4 {
+  margin: 0 5px;
+}
+
+label,
+figcaption {
+  font-size: 12px;
+}
+
+.right {
+  text-align: right;
+}
+
+.footer-btns {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+}
+
+.hide{
+  display: none;
+}

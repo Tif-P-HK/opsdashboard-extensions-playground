@@ -1,0 +1,11 @@
+{
+  "type": "Map Tool",
+  "title": "Social Media Feeds Map Tool",
+  "description": "Get the social media feeds nearby the selected map location",
+  "runtime": {
+    "iconPath": "imgs/icon.png",
+    "path": "socialMediaMapTool.html",
+    "viewType": "toolbar"
+  },
+  "credits": "By Esri (http://www.esri.com)"
+}
