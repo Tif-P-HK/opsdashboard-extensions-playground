@@ -234,19 +234,6 @@ define([
       });
     },
 
-    deactivateMapTool: function () {
-      // Deactivate the map tool when the Done button is clicked
-
-      this.deactivateMapDrawing();
-
-      this.mapWidgetProxy.destroyGraphicsLayerProxy(this.mediaFeedsGraphicsLayerProxy);
-      this.mapWidgetProxy.destroyGraphicsLayerProxy(this.bufferGraphicsLayerProxy);
-      this.mapWidgetProxy.destroyGraphicsLayerProxy(this.pushPinGraphicsLayerProxy);
-
-      // Call the base function
-      this.inherited(arguments, []);
-    },
-
     showResultsPage: function () {
       // Hide the user input UI and show the result page
 
@@ -258,38 +245,36 @@ define([
       domClass.remove(this.resultsPage, "hide");
 
       // Show the first photo on the map tool's UI
-      this.currentPhotoIndex = 0;
       this.showPhoto();
     },
 
     showPhoto: function () {
-      // Show the photo on the map toolbar and zoom to the photo
+      // Show the photo on the map toolbar and highlight the photo on the map
 
+      // Show the photo
       this.photoCount.innerHTML = this.photosInfo.length;
-
       var photo = this.photosInfo[this.currentPhotoIndex];
       this.currentPhotoId.innerHTML = photo.id;
       this.photoTitle.innerHTML = photo.title;
       this.photoUrl.src = photo.url;
       this.photoDescription.innerHTML = photo.description;
 
-      // Zoom to the photo
-      //var photoLocationWM = photo.location;
-      //if (!photoLocationWM.spatialReference.isWebMercator())
-      //  photoLocationWM = webMercatorUtils.geographicToWebMercator(photoLocationWM);
-      //var threshold = 150;
-      //this.mapWidgetProxy.setExtent(new Extent({
-      //  "xmin": photoLocationWM.x - threshold,
-      //  "ymin": photoLocationWM.y - threshold,
-      //  "xmax": photoLocationWM.x + threshold,
-      //  "ymax": photoLocationWM.y + threshold,
-      //  "spatialReference": {"wkid": photoLocationWM.spatialReference.wkid}
-      //}));
+      // Pan to the photo
+      var photoLocationWM = photo.location;
+      if (!photoLocationWM.spatialReference.isWebMercator())
+        photoLocationWM = webMercatorUtils.geographicToWebMercator(photoLocationWM);
+      this.mapWidgetProxy.panTo(photoLocationWM);
 
-      var graphic = this.flickrGraphics[this.currentPhotoIndex];
-      graphic.setSymbol(this.selectedFlickrSymbol);
-      this.mediaFeedsGraphicsLayerProxy.addOrUpdateGraphic(graphic);
+      // Reset the symbol of the graphic which represents the last selected photo (if any)
+      if(this.currentPhotoGraphic){
+        this.currentPhotoGraphic.setSymbol(this.flickrSymbol);
+        this.mediaFeedsGraphicsLayerProxy.addOrUpdateGraphic(this.currentPhotoGraphic);
+      }
 
+      // Highlight the graphic which represents the currently selected photo
+      this.currentPhotoGraphic = this.flickrGraphics[this.currentPhotoIndex];
+      this.currentPhotoGraphic.setSymbol(this.selectedFlickrSymbol);
+      this.mediaFeedsGraphicsLayerProxy.addOrUpdateGraphic(this.currentPhotoGraphic);
     },
 
     showPreviousPhoto: function () {
@@ -311,6 +296,19 @@ define([
 
       this.bufferGraphicsLayerProxy.setVisibility(false);
       this.pushPinGraphicsLayerProxy.setVisibility(false);
+    },
+
+    deactivateMapTool: function () {
+      // Deactivate the map tool when the Done button is clicked
+
+      this.deactivateMapDrawing();
+
+      this.mapWidgetProxy.destroyGraphicsLayerProxy(this.mediaFeedsGraphicsLayerProxy);
+      this.mapWidgetProxy.destroyGraphicsLayerProxy(this.bufferGraphicsLayerProxy);
+      this.mapWidgetProxy.destroyGraphicsLayerProxy(this.pushPinGraphicsLayerProxy);
+
+      // Call the base function
+      this.inherited(arguments, []);
     }
   });
 });
