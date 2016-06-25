@@ -29,44 +29,49 @@ define([
   return declare("SocialMediaMapToolConfig", [_WidgetBase, _TemplatedMixin, MapToolConfigurationProxy], {
     templateString: templateString,
 
-    // Provide a configuration UI to capture the following
-    // -date
-
-    postCreate: function () {
+    hostReady: function () {
       var defaultTags = "";
       var defaultRadius = 5;
       var defaultDate = 7;
 
-      this.tagsField.value = defaultTags;
-      this.radiusField.value = defaultRadius;
-      this.radiusUnitField.selectedIndex = 0;
-      this.dateField.value = defaultDate;
-      this.dateUnitField.selectedIndex = 0;
+      // if this.config has no properties, populate UI and the config object with the default values
+      // Otherwise, populate the UI with properties from the config
+      if (Object.keys(this.config).length === 0) {
+        this.tagsField.value = defaultTags;
+        this.radiusField.value = defaultRadius;
+        this.radiusUnitField.selectedIndex = 0;
+        this.dateField.value = defaultDate;
+        this.dateUnitField.selectedIndex = 0;
 
-      // if this.config has no properties, populate UI and config with the default value
-      // otherwise, populate UI with properties from config
-      this.config = {
-        "tags": defaultTags,
-        "takenDate": {
-          "value": defaultDate,
-          "unit": this.radiusUnitField.options[0].value
-        },
-        "radius": {
-          "value": defaultRadius,
-          "unit": this.dateUnitField.options[0].value
-        }
-      };
+        this.config = {
+          "tags": defaultTags,
+          "takenDate": {
+            "value": defaultDate,
+            "unit": this.radiusUnitField.selectedIndex
+          },
+          "radius": {
+            "value": defaultRadius,
+            "unit": this.dateUnitField.selectedIndex
+          }
+        };
+      } else {
+        this.tagsField.value = this.config.tags;
+        this.radiusField.value = this.config.radius.value;
+        this.radiusUnitField.selectedIndex = this.config.radius.unit;
+        this.dateField.value = this.config.takenDate.value;
+        this.dateUnitField.selectedIndex = this.config.takenDate.unit;
+
+        this.readyToPersistConfig(true);
+      }
 
       this.inherited(arguments);
     },
 
     tagsFieldChanged: function () {
       if (this.tagsField.value === "") {
-        console.log("tagsField is empty");
         this.readyToPersistConfig(false);
       }
       else {
-        console.log("tagsField is " + this.tagsField.value);
         this.config.tags = this.tagsField.value;
         this.readyToPersistConfig(true);
       }
@@ -74,9 +79,10 @@ define([
 
     radiusInputChanged: function () {
       var radius = number.parse(this.radiusField.value);
-      var radiusUnit = this.radiusUnitField.value;
+      var radiusUnit = this.radiusUnitField.selectedIndex;
+      var radiusUnitString = this.radiusUnitField.value;
 
-      if (radius && radius > 0 && ((radiusUnit == "km" && radius < 32) || (radiusUnit == "mi" && radius < 20 ))) {
+      if (radius && radius > 0 && ((radiusUnitString == "km" && radius < 32) || (radiusUnitString == "mi" && radius < 20 ))) {
         this.config.radius = {
           "value": radius,
           "unit": radiusUnit
@@ -89,15 +95,15 @@ define([
     },
 
     dateFieldChanged: function () {
-      var date = number.parse(this.dateField.value)
+      var date = number.parse(this.dateField.value);
       if (!date || date <= 0)
         this.readyToPersistConfig(false);
       else {
         this.config.takenDate = {
           "value": date,
-          "unit": this.dateUnitField.value
+          "unit": this.dateUnitField.selectedIndex
         };
-        console.log("date " + this.config.date.value + " " + this.config.date.unit);
+        console.log("date " + this.config.takenDate.value + " " + this.config.takenDate.unit);
         this.readyToPersistConfig(true);
       }
     }
