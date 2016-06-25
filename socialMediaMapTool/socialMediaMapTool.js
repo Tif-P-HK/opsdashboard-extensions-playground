@@ -41,8 +41,8 @@ define([
     // Fiddle: https://jsfiddle.net/jwes08nt/5
     // todo:
     /*
-     * Implement config
      * Change variable names to Flickr
+     * investigate on why data-dojo-props="intermediateChanges:true" is not working
      *
      */
 

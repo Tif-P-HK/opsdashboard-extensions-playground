@@ -33,14 +33,43 @@ define([
     // -date
 
     postCreate: function () {
+      var defaultTags = "";
+      var defaultRadius = 5;
+      var defaultDate = 7;
+
+      this.tagsField.value = defaultTags;
+      this.radiusField.value = defaultRadius;
+      this.radiusUnitField.selectedIndex = 0;
+      this.dateField.value = defaultDate;
+      this.dateUnitField.selectedIndex = 0;
+
+      // if this.config has no properties, populate UI and config with the default value
+      // otherwise, populate UI with properties from config
+      this.config = {
+        "tags": defaultTags,
+        "takenDate": {
+          "value": defaultDate,
+          "unit": this.radiusUnitField.options[0].value
+        },
+        "radius": {
+          "value": defaultRadius,
+          "unit": this.dateUnitField.options[0].value
+        }
+      };
+
       this.inherited(arguments);
     },
 
-    tagsFieldChanged: function(){
-      if(this.tagsField.value === "")
+    tagsFieldChanged: function () {
+      if (this.tagsField.value === "") {
+        console.log("tagsField is empty");
         this.readyToPersistConfig(false);
-      else
+      }
+      else {
+        console.log("tagsField is " + this.tagsField.value);
+        this.config.tags = this.tagsField.value;
         this.readyToPersistConfig(true);
+      }
     },
 
     radiusInputChanged: function () {
@@ -52,19 +81,25 @@ define([
           "value": radius,
           "unit": radiusUnit
         };
-        console.log("radius " + this.config.radius.value + " " + this.config.unit);
+        console.log("radius " + this.config.radius.value + " " + this.config.radius.unit);
         this.readyToPersistConfig(true);
       }
       else
         this.readyToPersistConfig(false);
     },
 
-    dateFieldChanged: function(){
+    dateFieldChanged: function () {
       var date = number.parse(this.dateField.value)
-      if(!date || date <= 0)
+      if (!date || date <= 0)
         this.readyToPersistConfig(false);
-      else
+      else {
+        this.config.takenDate = {
+          "value": date,
+          "unit": this.dateUnitField.value
+        };
+        console.log("date " + this.config.date.value + " " + this.config.date.unit);
         this.readyToPersistConfig(true);
+      }
     }
   });
 });

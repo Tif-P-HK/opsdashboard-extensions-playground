@@ -6,7 +6,8 @@
     <div class="table-row">
       <label class="table-cell">Tag(s) (separated by commas)</label>
       <input type="text" data-dojo-attach-point="tagsField" class="table-cell textInput"
-             data-dojo-type="dijit/form/TextBox" data-dojo-attach-event="onChange:tagsFieldChanged"/>
+             data-dojo-type="dijit/form/TextBox"
+             data-dojo-attach-event="onChange:tagsFieldChanged"/>
     </div>
 
     <div class="table-row">
@@ -15,8 +16,7 @@
         <input type="text" class="numericInput"
                data-dojo-attach-point="radiusField"
                data-dojo-type="dijit/form/NumberTextBox"
-               data-dojo-attach-event="onBlur:radiusInputChanged"
-               value="5"/>
+               data-dojo-attach-event="onBlur:radiusInputChanged"/>
         <select data-dojo-attach-point="radiusUnitField" data-dojo-type="dijit/form/Select"
                 data-dojo-attach-event="onChange:radiusInputChanged">
           <option value="km">km</option>
@@ -31,8 +31,7 @@
         <input type="text" class="numericInput"
                data-dojo-attach-point="dateField"
                data-dojo-type="dijit/form/NumberTextBox"
-               data-dojo-attach-event="onBlur:dateFieldChanged"
-               value="7"/>
+               data-dojo-attach-event="onBlur:dateFieldChanged"/>
         <select data-dojo-attach-point="dateUnitField" data-dojo-type="dijit/form/Select"
                 data-dojo-attach-event="onChange:radiusInputChanged">
           <option value="days">days</option>

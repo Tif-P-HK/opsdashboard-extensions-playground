@@ -38,6 +38,10 @@ html, body {
   margin: 5px 0;
 }
 
+select{
+  width: 80px;
+}
+
 /*
 * styles of the photo navigation controls
 */
