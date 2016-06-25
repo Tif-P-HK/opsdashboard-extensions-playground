@@ -6,27 +6,57 @@ html, body {
 }
 
 .table {
-  /*display: table;*/
   overflow: hidden;
+  display: table;
+  width: 95%;
 }
 
-/*.buttonContainer {*/
-  /*width: 20px;*/
-/*}*/
+.table-row{
+  display: table-row;
+}
+
+.table-cell{
+  display: table-cell;
+}
+
+/*
+* styles of the configuration dialog
+*/
+.textInput{
+  width: 250px;
+}
+
+.numericInput{
+  width: 50px;
+}
+
+#configForm .table-row > .table-cell:first-child{
+  margin-right: 10px;
+}
+
+#configForm .table-cell > *{
+  margin: 5px 0;
+}
 
 /*
 * styles of the photo navigation controls
 */
 
-.paginationDiv * {
+#paginationDiv {
+  margin-right: 10px;
+  text-align: right;
+}
+
+#paginationDiv * {
   vertical-align: middle;
 }
 
-.paginationDiv img {
+#paginationDiv img {
   padding: 10px 6px;
+  margin: auto 2px;
 }
 
-.paginationDiv img:hover {
+#paginationDiv img:hover {
   background: #e2f1fb;
   cursor: pointer;
 }
@@ -49,8 +79,12 @@ figure img {
 * generic styles
 */
 
-h4 {
-  margin: 0 5px;
+/*h4, h5 {*/
+  /*margin: 0 0 2px 0;*/
+/*}*/
+
+h4, h5 {
+  margin: 5px 0;
 }
 
 label,
@@ -58,13 +92,14 @@ figcaption {
   font-size: 12px;
 }
 
-.right {
-  text-align: right;
-}
-
-.footer-btns {
+.footer{
   position: absolute;
   bottom: 5px;
+}
+
+.right {
+  position: absolute;
+  text-align: right;
   right: 5px;
 }
 

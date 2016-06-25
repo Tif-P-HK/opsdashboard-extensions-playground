@@ -1,0 +1,48 @@
+<div>
+  <h5>Specify tag(s), radius and a date range to be used for Flickr photo search.</h5>
+
+  <div id="configForm" class="table">
+
+    <div class="table-row">
+      <label class="table-cell">Tag(s) (separated by commas)</label>
+      <input type="text" data-dojo-attach-point="tagsField" class="table-cell textInput"
+             data-dojo-type="dijit/form/TextBox" data-dojo-attach-event="onChange:tagsFieldChanged"/>
+    </div>
+
+    <div class="table-row">
+      <label class="table-cell">Search radius ( &lt; 20mi/32km) </label>
+      <div class="table-cell ">
+        <input type="text" class="numericInput"
+               data-dojo-attach-point="radiusField"
+               data-dojo-type="dijit/form/NumberTextBox"
+               data-dojo-attach-event="onBlur:radiusInputChanged"
+               value="5"/>
+        <select data-dojo-attach-point="radiusUnitField" data-dojo-type="dijit/form/Select"
+                data-dojo-attach-event="onChange:radiusInputChanged">
+          <option value="km">km</option>
+          <option value="mi">mile</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-row">
+      <label class="table-cell">Taken since the past</label>
+      <div class="table-cell">
+        <input type="text" class="numericInput"
+               data-dojo-attach-point="dateField"
+               data-dojo-type="dijit/form/NumberTextBox"
+               data-dojo-attach-event="onBlur:dateFieldChanged"
+               value="7"/>
+        <select data-dojo-attach-point="dateUnitField" data-dojo-type="dijit/form/Select"
+                data-dojo-attach-event="onChange:radiusInputChanged">
+          <option value="days">days</option>
+          <option value="days">weeks</option>
+          <option value="weeks">months</option>
+          <option value="weeks">years</option>
+        </select>
+      </div>
+    </div>
+
+  </div>
+
+</div>

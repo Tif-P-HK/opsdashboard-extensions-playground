@@ -38,9 +38,13 @@ define([
 
     templateString: templateString,
 
-    // todo:
     // Fiddle: https://jsfiddle.net/jwes08nt/5
-    // zoom to Flickr photo, or at least highlight the graphic
+    // todo:
+    /*
+     * Implement config
+     * Change variable names to Flickr
+     *
+     */
 
     constructor: function () {
 
@@ -61,8 +65,9 @@ define([
       this.flickrGraphics = [];
 
       // Create the symbol of the selected social media
-      this.selectedFlickrSymbol = new PictureMarkerSymbol(iconPath + "imgs/selectedFlickrIcon.gif", 44, 60);
-      this.selectedFlickrSymbol.yoffset = 10;
+      var selectedFlickrSymbol = new PictureMarkerSymbol(iconPath + "imgs/selectedFlickrIcon.png", 53, 72);
+      selectedFlickrSymbol.yoffset = 10;
+      this.selectedPhotoGraphic = new Graphic(null, selectedFlickrSymbol);
 
       // Set up the query for the Flickr photo search request
       // todo: make tags a config
@@ -72,23 +77,18 @@ define([
       // todo: add date to query
 
       // todo: radius and unit should come from config
-      // todo: is noJsonCallback needed?
       this.query = {
         method: "flickr.photos.search",
         api_key: "fe64b1e625e18c0cfd70165541dc786f",
         extras: "geo,description,date_taken,geo,url_s",
-        tags: "traffic, weather",
-        radius: 30,
+        tags: "fire, mountain, wildfire",
+        radius: 5,
         radius_units: "km",
         has_geo: 1,
         safe_search: 1,
         format: "json",
         nojsoncallback: 1
       };
-
-      // Variables for showing the search result
-      this.photosInfo = [];
-      this.currentPhotoIndex = 0;
     },
 
     hostReady: function () {
@@ -156,6 +156,7 @@ define([
       this.mediaFeedsGraphicsLayerProxy.clear();
       this.bufferGraphicsLayerProxy.clear();
       this.pushPinGraphicsLayerProxy.clear();
+      this.selectedPhotoGraphicsLayerProxy.clear();
       this.flickrGraphics = [];
       this.photosInfo = [];
 
@@ -211,7 +212,7 @@ define([
         var photoLocation;
         var photoId = 0;
         photos.forEach(function (photo) {
-          if (photo.latitude && photo.latitude && photoId <=3) {
+          if (photo.latitude && photo.latitude) {
 
             photoLocation = new Point(photo.longitude, photo.latitude);
             if (this.mapWidgetProxy.spatialReference.isWebMercator())
@@ -253,6 +254,7 @@ define([
       domClass.remove(this.resultsPage, "hide");
 
       // Show the first photo on the map tool's UI
+      this.currentPhotoIndex = 0;
       this.showPhoto();
     },
 
@@ -273,19 +275,9 @@ define([
         photoLocationWM = webMercatorUtils.geographicToWebMercator(photoLocationWM);
       this.mapWidgetProxy.panTo(photoLocationWM);
 
-      // Reset the symbol of the graphic which represents the last selected photo (if any)
-      if (this.currentPhotoGraphic) {
-        this.currentPhotoGraphic.setSymbol(this.flickrSymbol);
-        this.mediaFeedsGraphicsLayerProxy.addOrUpdateGraphic(this.currentPhotoGraphic);
-      }
-
       // Highlight the graphic which represents the currently selected photo
-      this.currentPhotoGraphic = this.flickrGraphics[this.currentPhotoIndex];
-      this.mediaFeedsGraphicsLayerProxy.removeGraphic(this.currentPhotoGraphic);
-      this.mediaFeedsGraphicsLayerProxy.addOrUpdateGraphic(this.currentPhotoGraphic);
-
-      this.currentPhotoGraphic.setSymbol(this.selectedFlickrSymbol);
-      this.mediaFeedsGraphicsLayerProxy.addOrUpdateGraphic(this.currentPhotoGraphic);
+      this.selectedPhotoGraphic.setGeometry(photoLocationWM);
+      this.selectedPhotoGraphicsLayerProxy.addOrUpdateGraphic(this.selectedPhotoGraphic);
     },
 
     showPreviousPhoto: function () {
@@ -314,6 +306,7 @@ define([
 
       this.deactivateMapDrawing();
 
+      this.mapWidgetProxy.destroyGraphicsLayerProxy(this.selectedPhotoGraphicsLayerProxy);
       this.mapWidgetProxy.destroyGraphicsLayerProxy(this.mediaFeedsGraphicsLayerProxy);
       this.mapWidgetProxy.destroyGraphicsLayerProxy(this.bufferGraphicsLayerProxy);
       this.mapWidgetProxy.destroyGraphicsLayerProxy(this.pushPinGraphicsLayerProxy);
