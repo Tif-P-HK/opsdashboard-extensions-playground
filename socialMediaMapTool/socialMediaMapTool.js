@@ -42,7 +42,7 @@ define([
     // todo:
     /*
      * Change variable names to Flickr
-     * investigate on why data-dojo-props="intermediateChanges:true" is not working
+     * change date to time difference
      *
      */
 
@@ -254,29 +254,16 @@ define([
       // Set the min and max taken dates of the photos
 
       if (this.takenDate) {
-        var today = new Date();
-        var timeDifference = this.takenDate.value;
-        var minTakenDate = today;
-        var dateUnit = this.takenDate.unitString;
-        switch (dateUnit) {
-          case "days":
-            minTakenDate = today.setDate(today.getDate() - timeDifference);
-            break;
-          case "weeks":
-            minTakenDate = today.setDate(today.getDate() - (timeDifference * 7));
-            break;
-          case "months":
-            minTakenDate = today.setDate(today.getMonth() - timeDifference);
-            break;
-          case "years":
-            minTakenDate = today.setDate(today.getYear() - timeDifference);
-            break;
-        }
 
-        this.query.min_taken_date = minTakenDate;
+        var now = moment(new Date());
+        var minTakenDate = now.clone().subtract(this.takenDate.value, this.takenDate.unitString);
+
+        this.query.min_taken_date = minTakenDate.format("YYYY-MM-DD HH:mm:SS");
+        console.log("min date: " + this.query.min_taken_date);
       }
 
-      this.query.max_taken_date = new Date().getTime();
+      this.query.max_taken_date = now.format("YYYY-MM-DD HH:mm:SS");
+      console.log("max date: " + this.query.max_taken_date);
     },
 
     showResultsPage: function () {

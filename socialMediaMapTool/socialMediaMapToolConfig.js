@@ -48,11 +48,12 @@ define([
           "tags": defaultTags,
           "takenDate": {
             "value": defaultDate,
-            "unit": this.radiusUnitField.selectedIndex
+            "unit": this.dateUnitField.selectedIndex,
+            "unitString": this.dateUnitField.value.substring(0, this.dateUnitField.value.length - 1)
           },
           "radius": {
             "value": defaultRadius,
-            "unit": this.dateUnitField.selectedIndex
+            "unit": this.radiusUnitField.selectedIndex
           }
         };
       } else {
@@ -109,8 +110,9 @@ define([
         this.config.takenDate = {
           "value": date,
           "unit": this.dateUnitField.selectedIndex,
-          "unitString": this.dateUnitField.value
+          "unitString": this.dateUnitField.value.substring(0, this.dateUnitField.value.length - 1)
         };
+        console.log(this.config.takenDate.value + " " + this.config.takenDate.unitString + " ( " + this.config.takenDate.unit + " )")
         this.readyToPersistConfig(true);
       }
     }
