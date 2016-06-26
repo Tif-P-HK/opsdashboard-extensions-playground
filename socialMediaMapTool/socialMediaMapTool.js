@@ -58,18 +58,19 @@ define([
       var outlineSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([0, 0, 0, 0.8]), 1);
       var bufferSymbol = new SimpleFillSymbol(SimpleLineSymbol.STYLE_SOLID, outlineSymbol, new Color([58, 146, 209, 0.2]));
       this.bufferGraphic = new Graphic(null, bufferSymbol);
+      this.radiusUnit = Units.KILOMETERS;
 
-      // Create the social media feeds graphics
+      // Create the graphics for each photo. These graphics will be drawn at their taken locations
       this.flickrSymbol = new PictureMarkerSymbol(iconPath + "imgs/flickrIcon.png", 34, 46);
       this.flickrSymbol.yoffset = 10;
       this.flickrGraphics = [];
 
-      // Create the symbol of the selected social media
+      // Create graphic for the selected photo
       var selectedFlickrSymbol = new PictureMarkerSymbol(iconPath + "imgs/selectedFlickrIcon.png", 53, 72);
       selectedFlickrSymbol.yoffset = 10;
       this.selectedPhotoGraphic = new Graphic(null, selectedFlickrSymbol);
 
-      // Set up the query for the Flickr photo search request
+      // Set up the query for the photo search request
       this.flickrDomain = "api.flickr.com";
       esriConfig.defaults.io.corsEnabledServers.push(this.flickrDomain);
 
@@ -85,7 +86,6 @@ define([
         format: "json",
         nojsoncallback: 1
       };
-      this.radiusUnit = Units.KILOMETERS;
     },
 
     hostReady: function () {
@@ -140,7 +140,7 @@ define([
     },
 
     availableDisplaySizeChanged: function (availableSize) {
-      // Update the size of the user interface based on whether the user is on the search page or the result page
+      // Update the size of the user interface based on whether the search page or the result page is being shown
 
       if (!domClass.contains(this.searchPage, "hide")) {
         // User is on the search page
@@ -158,15 +158,15 @@ define([
     },
 
     mapDrawComplete: function (geometry) {
-      // When user finishes drawing, use the resulting geometry to get the social media feeds within the search area
+      // When user finishes drawing, use the resulting geometry to search for the photos within the search area
 
       if (!geometry)
         return;
 
-      // Immediately show a feedback at the location clicked by the user
+      // Immediately show a feedback at the location selected by the user
       this.showSelectedArea(geometry);
 
-      // Search for the social media feeds within the area
+      // Search for the photos within the area
       this.searchForPhotos(geometry);
     },
 
@@ -260,7 +260,7 @@ define([
     },
 
     showResultsPage: function () {
-      // Hide the user input UI and show the result page
+      // Hide the feedback graphics and show the result page
 
       domClass.add(this.searchPage, "hide");
       this.setDisplaySize({
@@ -269,7 +269,7 @@ define([
       });
       domClass.remove(this.resultsPage, "hide");
 
-      // Show the first photo on the map tool's UI
+      // Show the first photo on the result page
       this.currentPhotoIndex = 0;
       this.showPhoto();
     },

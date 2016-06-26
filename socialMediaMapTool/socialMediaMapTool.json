@@ -1,9 +1,9 @@
 {
   "type": "Map Tool",
-  "title": "Social Media Feeds Map Tool",
-  "description": "Get the social media feeds nearby the selected map location",
+  "title": "Flickr Feeds Map Tool",
+  "description": "Get Flickr photos nearby the selected map location",
   "runtime": {
-    "iconPath": "imgs/icon.png",
+    "iconPath": "imgs/white-small-chiclet.png",
     "path": "socialMediaMapTool.html",
     "viewType": "toolbar"
   },
