@@ -49,7 +49,7 @@ define([
           "takenDate": {
             "value": defaultDate,
             "unit": this.dateUnitField.selectedIndex,
-            "unitString": this.dateUnitField.value.substring(0, this.dateUnitField.value.length - 1)
+            "unitString": this.dateUnitField.value
           },
           "radius": {
             "value": defaultRadius,
@@ -110,7 +110,7 @@ define([
         this.config.takenDate = {
           "value": date,
           "unit": this.dateUnitField.selectedIndex,
-          "unitString": this.dateUnitField.value.substring(0, this.dateUnitField.value.length - 1)
+          "unitString": this.dateUnitField.value
         };
         console.log(this.config.takenDate.value + " " + this.config.takenDate.unitString + " ( " + this.config.takenDate.unit + " )")
         this.readyToPersistConfig(true);

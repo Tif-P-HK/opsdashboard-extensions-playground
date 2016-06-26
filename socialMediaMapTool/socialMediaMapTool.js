@@ -210,7 +210,7 @@ define([
 
         var photos = response.photos.photo;
         if (photos.length === 0) {
-          alert("No photo was found, try another location");
+          alert("No photo was found. Please refine your search criteria.");
           this.hideFeedbackGraphics();
           return;
         }
