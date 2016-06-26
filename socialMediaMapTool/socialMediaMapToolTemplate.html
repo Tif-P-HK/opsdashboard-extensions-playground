@@ -1,8 +1,12 @@
 <div>
   <!-- UIs to show when user activates the map tool -->
   <div data-dojo-attach-point="searchPage" class="table">
-    <div class="table-cell"><label>Click on the map to get social media feed</label></div>
-    <div class="table-cell"><button class="right" data-dojo-attach-event="onClick:deactivateMapTool">Done</button></div>
+    <div class="table-cell">
+      <label>Click on the map to get social media feeds (search tags: </label>
+      <label data-dojo-attach-point="tagsLabel"></label>
+      <label>)</label>
+    </div>
+    <div class="table-cell"><button data-dojo-attach-event="onClick:deactivateMapTool">Done</button></div>
   </div>
 
   <!-- The search result UIs -->

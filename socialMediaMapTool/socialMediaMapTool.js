@@ -31,18 +31,18 @@ define([
   "esri/geometry/webMercatorUtils",
   "esri/geometry/Point",
   "esri/geometry/Circle",
+  "esri/units",
   "dojo/text!./SocialMediaMapToolTemplate.html"
-], function (declare, lang, ioQuery, domClass, _WidgetBase, _TemplatedMixin, esriConfig, esriRequest, MapToolProxy, Color, SimpleLineSymbol, SimpleFillSymbol, PictureMarkerSymbol, Graphic, Extent, webMercatorUtils, Point, Circle, templateString) {
+], function (declare, lang, ioQuery, domClass, _WidgetBase, _TemplatedMixin, esriConfig, esriRequest, MapToolProxy, Color, SimpleLineSymbol, SimpleFillSymbol, PictureMarkerSymbol, Graphic, Extent, webMercatorUtils, Point, Circle, Units, templateString) {
 
   return declare("SocialMediaMapTool", [_WidgetBase, _TemplatedMixin, MapToolProxy], {
 
     templateString: templateString,
 
-    // Fiddle: https://jsfiddle.net/jwes08nt/5
     // todo:
     /*
      * Change variable names to Flickr
-     * change date to time difference
+     * Change date variable names to indicate time difference
      *
      */
 
@@ -85,22 +85,28 @@ define([
         format: "json",
         nojsoncallback: 1
       };
+      this.radiusUnit = Units.KILOMETERS;
     },
 
     hostReady: function () {
       // Update the query object using the properties saved into the configuration
 
-      if (this.tags)
+      if (this.tags){
         this.query.tags = this.tags;
+        this.tagsLabel.innerHTML = this.tags;
+      }
 
       if (this.radius) {
         this.query.radius = this.radius.value;
         this.query.radius_units = this.radius.unitString;
+
+        if (this.radius.unitString === "mi")
+          this.radiusUnit = Units.MILES;
       }
 
       // Update the size of the user experience
       this.setDisplaySize({
-        width: Math.min(this.availableDisplaySize.width / 2, 400),
+        width: Math.min(this.availableDisplaySize.width / 2, 600),
         height: 40
       });
 
@@ -139,7 +145,7 @@ define([
       if (!domClass.contains(this.searchPage, "hide")) {
         // User is on the search page
         this.setDisplaySize({
-          width: Math.min(availableSize / 2, 350),
+          width: Math.min(availableSize / 2, 600),
           height: 40
         });
       } else {
@@ -157,14 +163,6 @@ define([
       if (!geometry)
         return;
 
-      // Clear the graphics, graphics layers and search results from the previous search
-      this.mediaFeedsGraphicsLayerProxy.clear();
-      this.bufferGraphicsLayerProxy.clear();
-      this.pushPinGraphicsLayerProxy.clear();
-      this.selectedPhotoGraphicsLayerProxy.clear();
-      this.flickrGraphics = [];
-      this.photosInfo = [];
-
       // Immediately show a feedback at the location clicked by the user
       this.showSelectedArea(geometry);
 
@@ -178,8 +176,7 @@ define([
       this.pushPinGraphic.setGeometry(geometry);
       this.pushPinGraphicsLayerProxy.addOrUpdateGraphic(this.pushPinGraphic);
 
-      // todo: more conversion needed if unit = mile
-      this.bufferGraphic.setGeometry(new Circle(geometry, {"radius": this.query.radius * 1000}));
+      this.bufferGraphic.setGeometry(new Circle(geometry, {"radius": this.query.radius , "radiusUnit": this.radiusUnit}));
       this.bufferGraphicsLayerProxy.addOrUpdateGraphic(this.bufferGraphic);
 
       this.bufferGraphicsLayerProxy.setVisibility(true);
@@ -195,7 +192,13 @@ define([
       this.query.lat = geometry.y;
       this.query.lon = geometry.x;
 
-      this.setTakenDates();
+      // Set the min and max taken dates of the photos
+      if (this.takenDate) {
+        var now = moment(new Date());
+        var minTakenDate = now.clone().subtract(this.takenDate.value, this.takenDate.unitString);
+        this.query.min_taken_date = minTakenDate.format("YYYY-MM-DD HH:mm:SS");
+      }
+      this.query.max_taken_date = now.format("YYYY-MM-DD HH:mm:SS");
 
       // Search for photos
       var requestUrl = "https://" + this.flickrDomain + "/services/rest/?" + ioQuery.objectToQuery(this.query);
@@ -211,9 +214,15 @@ define([
         var photos = response.photos.photo;
         if (photos.length === 0) {
           alert("No photo was found. Please refine your search criteria.");
-          this.hideFeedbackGraphics();
+          this.clearFeedbackGraphics();
           return;
         }
+
+        // Clear the previous search results and graphics
+        this.mediaFeedsGraphicsLayerProxy.clear();
+        this.selectedPhotoGraphicsLayerProxy.clear();
+        this.flickrGraphics = [];
+        this.photosInfo = [];
 
         // Show photos
         var photoLocation;
@@ -237,7 +246,7 @@ define([
         }.bind(this));
 
         // Hide the feedback graphics
-        this.hideFeedbackGraphics();
+        this.clearFeedbackGraphics();
 
         // Show a graphic on the map at each photo's location
         this.mediaFeedsGraphicsLayerProxy.addOrUpdateGraphics(this.flickrGraphics);
@@ -248,22 +257,6 @@ define([
       }.bind(this), function (error) {
         console.log("Error: ", error.message);
       });
-    },
-
-    setTakenDates: function(){
-      // Set the min and max taken dates of the photos
-
-      if (this.takenDate) {
-
-        var now = moment(new Date());
-        var minTakenDate = now.clone().subtract(this.takenDate.value, this.takenDate.unitString);
-
-        this.query.min_taken_date = minTakenDate.format("YYYY-MM-DD HH:mm:SS");
-        console.log("min date: " + this.query.min_taken_date);
-      }
-
-      this.query.max_taken_date = now.format("YYYY-MM-DD HH:mm:SS");
-      console.log("max date: " + this.query.max_taken_date);
     },
 
     showResultsPage: function () {
@@ -317,11 +310,11 @@ define([
       this.showPhoto();
     },
 
-    hideFeedbackGraphics: function () {
-      // Hide the pushpin graphic and the search area graphic
+    clearFeedbackGraphics: function () {
+      // Clear the pushpin graphic and the search area graphic
 
-      this.bufferGraphicsLayerProxy.setVisibility(false);
-      this.pushPinGraphicsLayerProxy.setVisibility(false);
+      this.bufferGraphicsLayerProxy.clear();
+      this.pushPinGraphicsLayerProxy.clear();
     },
 
     deactivateMapTool: function () {
