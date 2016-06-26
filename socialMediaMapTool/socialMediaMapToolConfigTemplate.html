@@ -16,7 +16,7 @@
         <input type="text" class="numericInput"
                data-dojo-attach-point="radiusField"
                data-dojo-type="dijit/form/NumberTextBox"
-               data-dojo-attach-event="onBlur:radiusInputChanged"/>
+               data-dojo-attach-event="onKeyUp:radiusInputChanged"/>
         <select data-dojo-attach-point="radiusUnitField" data-dojo-type="dijit/form/Select"
                 data-dojo-attach-event="onChange:radiusInputChanged">
           <option value="km">km</option>
@@ -31,7 +31,7 @@
         <input type="text" class="numericInput"
                data-dojo-attach-point="dateField"
                data-dojo-type="dijit/form/NumberTextBox"
-               data-dojo-attach-event="onBlur:dateFieldChanged"/>
+               data-dojo-attach-event="onKeyUp:dateFieldChanged"/>
         <select data-dojo-attach-point="dateUnitField" data-dojo-type="dijit/form/Select"
                 data-dojo-attach-event="onChange:dateFieldChanged">
           <option value="day">days</option>

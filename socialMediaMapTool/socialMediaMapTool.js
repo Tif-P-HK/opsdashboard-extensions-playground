@@ -39,13 +39,6 @@ define([
 
     templateString: templateString,
 
-    // todo:
-    /*
-     * Change variable names to Flickr
-     * Change date variable names to indicate time difference
-     *
-     */
-
     constructor: function () {
 
       // Create the push pin graphic
@@ -193,9 +186,9 @@ define([
       this.query.lon = geometry.x;
 
       // Set the min and max taken dates of the photos
-      if (this.takenDate) {
+      if (this.dateback) {
         var now = moment(new Date());
-        var minTakenDate = now.clone().subtract(this.takenDate.value, this.takenDate.unitString);
+        var minTakenDate = now.clone().subtract(this.dateback.value, this.dateback.unitString);
         this.query.min_taken_date = minTakenDate.format("YYYY-MM-DD HH:mm:SS");
       }
       this.query.max_taken_date = now.format("YYYY-MM-DD HH:mm:SS");

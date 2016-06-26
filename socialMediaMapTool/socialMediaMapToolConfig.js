@@ -35,19 +35,19 @@ define([
 
       var defaultTags = "";
       var defaultRadius = 5;
-      var defaultDate = 7;
+      var defaultDateback = 7;
 
       if (Object.keys(this.config).length === 0) {
         this.tagsField.value = defaultTags;
         this.radiusField.value = defaultRadius;
         this.radiusUnitField.selectedIndex = 0;
-        this.dateField.value = defaultDate;
+        this.dateField.value = defaultDateback;
         this.dateUnitField.selectedIndex = 0;
 
         this.config = {
           "tags": defaultTags,
-          "takenDate": {
-            "value": defaultDate,
+          "dateback": {
+            "value": defaultDateback,
             "unit": this.dateUnitField.selectedIndex,
             "unitString": this.dateUnitField.value
           },
@@ -60,8 +60,8 @@ define([
         this.tagsField.value = this.config.tags;
         this.radiusField.value = this.config.radius.value;
         this.radiusUnitField.selectedIndex = this.config.radius.unit;
-        this.dateField.value = this.config.takenDate.value;
-        this.dateUnitField.selectedIndex = this.config.takenDate.unit;
+        this.dateField.value = this.config.dateback.value;
+        this.dateUnitField.selectedIndex = this.config.dateback.unit;
 
         this.readyToPersistConfig(true);
       }
@@ -103,16 +103,15 @@ define([
     dateFieldChanged: function () {
       // Validate date value is valid
 
-      var date = number.parse(this.dateField.value);
-      if (!date || date <= 0)
+      var dateback = number.parse(this.dateField.value);
+      if (!dateback || dateback <= 0)
         this.readyToPersistConfig(false);
       else {
-        this.config.takenDate = {
-          "value": date,
+        this.config.dateback = {
+          "value": dateback,
           "unit": this.dateUnitField.selectedIndex,
           "unitString": this.dateUnitField.value
         };
-        console.log(this.config.takenDate.value + " " + this.config.takenDate.unitString + " ( " + this.config.takenDate.unit + " )")
         this.readyToPersistConfig(true);
       }
     }
