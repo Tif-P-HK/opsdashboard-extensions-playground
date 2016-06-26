@@ -70,18 +70,14 @@ define([
       this.selectedPhotoGraphic = new Graphic(null, selectedFlickrSymbol);
 
       // Set up the query for the Flickr photo search request
-      // todo: make tags a config
       this.flickrDomain = "api.flickr.com";
       esriConfig.defaults.io.corsEnabledServers.push(this.flickrDomain);
 
-      // todo: add date to query
-
-      // todo: radius and unit should come from config
       this.query = {
         method: "flickr.photos.search",
         api_key: "fe64b1e625e18c0cfd70165541dc786f",
         extras: "geo,description,date_taken,geo,url_s",
-        tags: "fire, mountain, wildfire",
+        tags: "",
         radius: 5,
         radius_units: "km",
         has_geo: 1,
@@ -92,6 +88,15 @@ define([
     },
 
     hostReady: function () {
+      // Update the query object using the properties saved into the configuration
+
+      if (this.tags)
+        this.query.tags = this.tags;
+
+      if (this.radius) {
+        this.query.radius = this.radius.value;
+        this.query.radius_units = this.radius.unitString;
+      }
 
       // Update the size of the user experience
       this.setDisplaySize({
@@ -190,6 +195,8 @@ define([
       this.query.lat = geometry.y;
       this.query.lon = geometry.x;
 
+      this.setTakenDates();
+
       // Search for photos
       var requestUrl = "https://" + this.flickrDomain + "/services/rest/?" + ioQuery.objectToQuery(this.query);
       esriRequest({
@@ -241,6 +248,35 @@ define([
       }.bind(this), function (error) {
         console.log("Error: ", error.message);
       });
+    },
+
+    setTakenDates: function(){
+      // Set the min and max taken dates of the photos
+
+      if (this.takenDate) {
+        var today = new Date();
+        var timeDifference = this.takenDate.value;
+        var minTakenDate = today;
+        var dateUnit = this.takenDate.unitString;
+        switch (dateUnit) {
+          case "days":
+            minTakenDate = today.setDate(today.getDate() - timeDifference);
+            break;
+          case "weeks":
+            minTakenDate = today.setDate(today.getDate() - (timeDifference * 7));
+            break;
+          case "months":
+            minTakenDate = today.setDate(today.getMonth() - timeDifference);
+            break;
+          case "years":
+            minTakenDate = today.setDate(today.getYear() - timeDifference);
+            break;
+        }
+
+        this.query.min_taken_date = minTakenDate;
+      }
+
+      this.query.max_taken_date = new Date().getTime();
     },
 
     showResultsPage: function () {
