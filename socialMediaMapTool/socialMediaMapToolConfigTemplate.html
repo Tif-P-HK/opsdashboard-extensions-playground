@@ -1,13 +1,13 @@
 <div>
-  <h5>Specify tag(s), radius and date range to be used for Flickr photo search</h5>
+  <h5>Specify a search text, radius and date range for photo search</h5>
 
   <div id="configForm" class="table">
 
     <div class="table-row">
-      <label class="table-cell">Tag(s) (separated by commas)</label>
-      <input type="text" data-dojo-attach-point="tagsField" class="table-cell textInput"
+      <label class="table-cell">Search text</label>
+      <input type="text" data-dojo-attach-point="searchTextField" class="table-cell textInput"
              data-dojo-type="dijit/form/TextBox"
-             data-dojo-attach-event="onKeyUp:tagsFieldChanged"/>
+             data-dojo-attach-event="onKeyUp:searchTextFieldChanged"/>
     </div>
 
     <div class="table-row">

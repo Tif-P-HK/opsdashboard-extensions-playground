@@ -33,19 +33,19 @@ define([
       // If this.config has no properties, populate UI and the config object with the default values
       // Otherwise, populate the UI with properties from the config
 
-      var defaultTags = "";
+      var defaultSearchText = "";
       var defaultRadius = 5;
       var defaultDateback = 7;
 
       if (Object.keys(this.config).length === 0) {
-        this.tagsField.value = defaultTags;
+        this.searchTextField.value = defaultSearchText;
         this.radiusField.value = defaultRadius;
         this.radiusUnitField.selectedIndex = 0;
         this.dateField.value = defaultDateback;
         this.dateUnitField.selectedIndex = 0;
 
         this.config = {
-          "tags": defaultTags,
+          "searchText": defaultSearchText,
           "dateback": {
             "value": defaultDateback,
             "unit": this.dateUnitField.selectedIndex,
@@ -57,7 +57,7 @@ define([
           }
         };
       } else {
-        this.tagsField.value = this.config.tags;
+        this.searchTextField.value = this.config.searchText;
         this.radiusField.value = this.config.radius.value;
         this.radiusUnitField.selectedIndex = this.config.radius.unit;
         this.dateField.value = this.config.dateback.value;
@@ -69,14 +69,14 @@ define([
       this.inherited(arguments);
     },
 
-    tagsFieldChanged: function () {
-      // Validate tags field is not empty
+    searchTextFieldChanged: function () {
+      // Validate search text field is not empty
 
-      if (this.tagsField.value === "") {
+      if (this.searchTextField.value === "") {
         this.readyToPersistConfig(false);
       }
       else {
-        this.config.tags = this.tagsField.value;
+        this.config.searchText = this.searchTextField.value;
         this.readyToPersistConfig(true);
       }
     },

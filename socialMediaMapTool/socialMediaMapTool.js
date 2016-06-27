@@ -71,7 +71,12 @@ define([
         method: "flickr.photos.search",
         api_key: "fe64b1e625e18c0cfd70165541dc786f",
         extras: "geo,description,date_taken,geo,url_s",
-        tags: "",
+        text: "",
+        content_type: 7,
+        media: "photos",
+        sort: "relevance",
+        parse_tags: 1,
+        view_all: 1,
         radius: 5,
         radius_units: "km",
         has_geo: 1,
@@ -84,9 +89,9 @@ define([
     hostReady: function () {
       // Update the query object using the properties saved into the configuration
 
-      if (this.tags){
-        this.query.tags = this.tags;
-        this.tagsLabel.innerHTML = this.tags;
+      if (this.searchText){
+        this.query.text = this.searchText;
+        this.searchTextLabel.innerHTML = this.searchText;
       }
 
       if (this.radius) {
@@ -99,7 +104,7 @@ define([
 
       // Update the size of the user experience
       this.setDisplaySize({
-        width: Math.min(this.availableDisplaySize.width / 2, 600),
+        width: Math.min(this.availableDisplaySize.width / 2, 700),
         height: 40
       });
 
@@ -138,7 +143,7 @@ define([
       if (!domClass.contains(this.searchPage, "hide")) {
         // User is on the search page
         this.setDisplaySize({
-          width: Math.min(availableSize / 2, 600),
+          width: Math.min(availableSize / 2, 700),
           height: 40
         });
       } else {
